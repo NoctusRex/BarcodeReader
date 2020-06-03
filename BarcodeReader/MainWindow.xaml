@@ -1,0 +1,32 @@
+﻿<Window x:Class="BarcodeReader.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BarcodeReader"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" Closing="Window_Closing">
+    <Grid>
+
+        <Button x:Name="ScreenshotButton" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="50" Height="50" Click="ScreenshotButton_Click" BorderBrush="{x:Null}" Background="{x:Null}">
+            <Image Source="Resources\camera_black.png"></Image>
+        </Button>
+
+        <Button x:Name="ScanButton" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Width="50" Height="50" Background="{x:Null}" BorderBrush="{x:Null}" Click="ScanButton_Click">
+            <Image Source="Resources\scanner_working.png"></Image>
+        </Button>
+
+        <TextBox x:Name="ScanTextBox" Height="50" Margin="72,10,73,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="32" FontFamily="Tahoma" KeyDown="ScanTextBox_KeyDown"/>
+
+        <ScrollViewer x:Name="HistoryScrollViewer" Margin="10,75,10,25">
+            <StackPanel x:Name="HistoryStackpanel"  CanHorizontallyScroll="True" CanVerticallyScroll="True"></StackPanel>
+        </ScrollViewer>
+
+        <Label x:Name="InfoLabel" Content="Label" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" Height="23" FontSize="10" FontFamily="Tahoma"/>
+       
+        <Button x:Name="ConfigButton"  HorizontalAlignment="Right" Margin="0,0,10,3" VerticalAlignment="Bottom" Width="19" Height="17" FontSize="10">
+            <Image Source="Resources\cog.png"></Image>
+        </Button>
+        
+    </Grid>
+</Window>
