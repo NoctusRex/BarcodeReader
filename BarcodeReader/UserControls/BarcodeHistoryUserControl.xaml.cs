@@ -22,6 +22,7 @@ namespace BarcodeReader
     public partial class BarcodeHistoryUserControl : UserControl
     {
         public GeneratedBarcode Barcode { get; set; }
+        public event EventHandler Deleted;
 
         public BarcodeHistoryUserControl()
         {
@@ -37,5 +38,9 @@ namespace BarcodeReader
             InfoLabel.Content = string.Format("Barcode Type: {0} - Scannend at {1}", barcode.BarcodeType, DateTime.Now);
         }
 
+        private void RemoveButton_Click(object sender, RoutedEventArgs e)
+        {
+            Deleted(this, e);
+        }
     }
 }

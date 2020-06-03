@@ -56,9 +56,6 @@
     <Reference Include="NoRe.Database.SqLite, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\NoRe.Database.SqLite.1.1.1\lib\net48\NoRe.Database.SqLite.dll</HintPath>
     </Reference>
-    <Reference Include="NoRe.Translation, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\NoRe.Translation.1.2.0\lib\net48\NoRe.Translation.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
