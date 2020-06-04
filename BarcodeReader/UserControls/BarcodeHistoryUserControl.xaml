@@ -7,7 +7,7 @@
              mc:Ignorable="d" d:DesignWidth="800" Height="57.5">
     <Grid x:Name="MainGrid" Margin="0,0,0,0" Background="#FF004799" VerticalAlignment="Top" Height="48">
         <Label x:Name="ContentLabel" Content="Label" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,0,0" FontSize="16" Foreground="White" FontWeight="Bold" FontFamily="Tahoma"/>
-        <Button x:Name="RemoveButton" HorizontalAlignment="Right" Height="40" Margin="0,5,10,5" VerticalAlignment="Center" Width="40" Background="{x:Null}" BorderBrush="{x:Null}">
+        <Button x:Name="RemoveButton" HorizontalAlignment="Right" Height="40" Margin="0,5,10,5" VerticalAlignment="Center" Width="40" Background="{x:Null}" BorderBrush="{x:Null}" Click="RemoveButton_Click">
             <Image Source="..\Resources\cross.png"></Image>
         </Button>
         <Label x:Name="InfoLabel" Content="Label" HorizontalAlignment="Left" Margin="10,24,0,0" VerticalAlignment="Top" Foreground="White" FontWeight="Bold" FontFamily="Tahoma"/>
