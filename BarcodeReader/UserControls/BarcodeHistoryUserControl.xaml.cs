@@ -1,18 +1,8 @@
 ﻿using IronBarCode;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace BarcodeReader
 {
@@ -29,18 +19,23 @@ namespace BarcodeReader
             InitializeComponent();
         }
 
-        public BarcodeHistoryUserControl(GeneratedBarcode barcode)
+        public BarcodeHistoryUserControl(GeneratedBarcode barcode, DateTime timeStamp)
         {
             InitializeComponent();
 
             Barcode = barcode;
             ContentLabel.Content = barcode.Value;
-            InfoLabel.Content = string.Format("Barcode Type: {0} - Scannend at {1}", barcode.BarcodeType, DateTime.Now);
+            InfoLabel.Content = string.Format("Barcode Type: {0} - Scannend at {1}", barcode.BarcodeType, timeStamp);
         }
 
         private void RemoveButton_Click(object sender, RoutedEventArgs e)
         {
             Deleted(this, e);
+        }
+
+        private void ShowButton_Click(object sender, RoutedEventArgs e)
+        {
+            new Windows.BarcodeWindow((Bitmap)Barcode.Image).Show();
         }
     }
 }

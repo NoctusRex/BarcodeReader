@@ -9,24 +9,26 @@
     <Grid>
 
         <Button ToolTip="Shortcut: End" x:Name="ScreenshotButton" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="50" Height="50" Click="ScreenshotButton_Click" BorderBrush="{x:Null}" Background="{x:Null}">
-            <Image Source="Resources\camera_black.png"></Image>
+            <Image Source="Resources\camera_black.png" HorizontalAlignment="Left"></Image>
         </Button>
 
-        <Button ToolTip="Shortcut: Pos1" x:Name="ScanButton" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Width="50" Height="50" Background="{x:Null}" BorderBrush="{x:Null}" Click="ScanButton_Click">
-            <Image Source="Resources\scanner_working.png"></Image>
+        <Button ToolTip="Shortcut: Pos1" x:Name="ScanButton" HorizontalAlignment="Left" Margin="732,10,0,0" VerticalAlignment="Top" Width="50" Height="50" Background="{x:Null}" BorderBrush="{x:Null}" Click="ScanButton_Click">
+            <Image Source="Resources\scanner_working.png" HorizontalAlignment="Left"></Image>
         </Button>
 
-        <TextBox x:Name="ScanTextBox" Height="50" Margin="72,10,73,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="32" FontFamily="Tahoma" PreviewKeyDown="Window_KeyDown"/>
+        <TextBox x:Name="ScanTextBox" Height="50" Margin="209,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="32" FontFamily="Tahoma" PreviewKeyDown="Window_KeyDown" HorizontalAlignment="Left" Width="508"/>
 
         <ScrollViewer x:Name="HistoryScrollViewer" Margin="10,75,10,25">
             <StackPanel x:Name="HistoryStackpanel"  CanHorizontallyScroll="True" CanVerticallyScroll="True"></StackPanel>
         </ScrollViewer>
 
         <Label x:Name="InfoLabel" Content="Label" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" Height="23" FontSize="10" FontFamily="Tahoma"/>
-       
+
         <Button x:Name="ConfigButton"  HorizontalAlignment="Right" Margin="0,0,10,3" VerticalAlignment="Bottom" Width="19" Height="17" FontSize="10">
             <Image Source="Resources\cog.png"></Image>
         </Button>
-        
+
+        <ComboBox x:Name ="BarcodeTypeComboBox" Margin="74,10,0,0" VerticalAlignment="Top" Height="50" HorizontalAlignment="Left" Width="130"/>
+
     </Grid>
 </Window>

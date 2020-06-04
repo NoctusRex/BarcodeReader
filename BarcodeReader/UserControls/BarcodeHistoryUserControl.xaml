@@ -10,6 +10,9 @@
         <Button x:Name="RemoveButton" HorizontalAlignment="Right" Height="40" Margin="0,5,10,5" VerticalAlignment="Center" Width="40" Background="{x:Null}" BorderBrush="{x:Null}" Click="RemoveButton_Click">
             <Image Source="..\Resources\cross.png"></Image>
         </Button>
+        <Button x:Name="ShowButton" HorizontalAlignment="Right" Height="40" Margin="0,5,60,5" VerticalAlignment="Center" Width="40" Background="{x:Null}" BorderBrush="{x:Null}" Click="ShowButton_Click">
+            <Image Source="..\Resources\barcode.png"></Image>
+        </Button>
         <Label x:Name="InfoLabel" Content="Label" HorizontalAlignment="Left" Margin="10,24,0,0" VerticalAlignment="Top" Foreground="White" FontWeight="Bold" FontFamily="Tahoma"/>
     </Grid>
 </UserControl>
