@@ -23,7 +23,7 @@ namespace BarcodeReader
             InitializeComponent();
 
             Barcode = barcode;
-            ContentLabel.Content = barcode.Text;
+            ContentLabel.Content = barcode.Text.Replace(Misc.BarcodeConstants.FNC1, Misc.BarcodeConstants.FNC1_Placeholder);
             InfoLabel.Content = string.Format("Barcode Type: {0} - Scannend at {1}", barcode.BarcodeFormat, timeStamp);
         }
 

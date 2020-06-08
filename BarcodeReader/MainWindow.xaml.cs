@@ -11,6 +11,8 @@ using NoRe.Database.Core.Models;
 using ZXing;
 using NoRe.Core;
 using Application = System.Windows.Application;
+using System.Text;
+using BarcodeReader.Misc;
 
 namespace BarcodeReader
 {
@@ -46,12 +48,12 @@ namespace BarcodeReader
                 Icon = Properties.Resources.barcode1
             };
 
-            if(Settings.Settings.StartAsNotifyIcon)
+            if (Settings.Settings.StartAsNotifyIcon)
             {
                 ShowInTaskbar = false;
                 Hide();
             }
-            
+
             NotifyIcon.DoubleClick += NotifyIconDoubleClick;
         }
 
@@ -81,7 +83,7 @@ namespace BarcodeReader
         private void HandleScan(Result barcode)
         {
             if (barcode is null) return;
-
+           
             BarcodeHistoryUserControl temp = TryGetHistory(barcode);
             if (temp is null)
             {
@@ -214,7 +216,7 @@ namespace BarcodeReader
         {
             if (string.IsNullOrEmpty(ScanTextBox.Text)) return;
 
-            HandleScan(CreateAndScanBarcode(ScanTextBox.Text, (BarcodeFormat)BarcodeTypeComboBox.SelectedItem));
+            HandleScan(CreateAndScanBarcode(ScanTextBox.Text.Replace(BarcodeConstants.FNC1_Placeholder, BarcodeConstants.FNC1), (BarcodeFormat)BarcodeTypeComboBox.SelectedItem));
         }
 
         private Result CreateAndScanBarcode(string text, BarcodeFormat format)
@@ -282,7 +284,7 @@ namespace BarcodeReader
 
         private void Window_StateChanged(object sender, EventArgs e)
         {
-            if(WindowState == WindowState.Minimized)
+            if (WindowState == WindowState.Minimized)
             {
                 NotifyIcon.Visible = true;
                 ShowInTaskbar = false;

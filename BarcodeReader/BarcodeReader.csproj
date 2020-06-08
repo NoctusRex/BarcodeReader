@@ -95,6 +95,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Misc\BarcodeConstants.cs" />
     <Compile Include="Misc\GlobalHotkey.cs" />
     <Compile Include="Misc\HotkeyConstants.cs" />
     <Compile Include="Misc\Settings.cs" />
