@@ -97,11 +97,15 @@
     </ApplicationDefinition>
     <Compile Include="Misc\GlobalHotkey.cs" />
     <Compile Include="Misc\HotkeyConstants.cs" />
+    <Compile Include="Misc\Settings.cs" />
     <Compile Include="Windows\BarcodeWindow.xaml.cs">
       <DependentUpon>BarcodeWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\ScreenShotWindow.xaml.cs">
       <DependentUpon>ScreenShotWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="UserControls\BarcodeHistoryUserControl.xaml">
       <SubType>Designer</SubType>
@@ -127,6 +131,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\ScreenShotWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -180,6 +188,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\scanner_working.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\barcode.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

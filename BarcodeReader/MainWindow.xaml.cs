@@ -9,7 +9,8 @@ using System.Reflection;
 using NoRe.Database.SqLite;
 using NoRe.Database.Core.Models;
 using ZXing;
-using ZXing.Presentation;
+using NoRe.Core;
+using Application = System.Windows.Application;
 
 namespace BarcodeReader
 {
@@ -22,13 +23,44 @@ namespace BarcodeReader
         private Misc.GlobalHotkey ScanScreenshotHotkey { get; set; }
         private BarcodeHistoryUserControl CurrentBarcode { get; set; }
         private SqLiteWrapper Database { get; set; }
+        private SettingsWindow Settings { get; set; }
+        private NotifyIcon NotifyIcon { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
-            Database = new SqLiteWrapper("./History.db", "3");
+            Database = new SqLiteWrapper(System.IO.Path.Combine(Pathmanager.StartupDirectory, "History.db"), "3");
 
             Database.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS history (id INTEGER PRIMARY KEY AUTOINCREMENT, value TEXT, type TEXT, date TEXT)");
+            Settings = new SettingsWindow();
+        }
+
+        private void InitializeNotifyIcon()
+        {
+            NotifyIcon = new NotifyIcon()
+            {
+                Visible = Settings.Settings.StartAsNotifyIcon,
+                BalloonTipText = "Barcode Reader",
+                BalloonTipTitle = "Barcode Reader",
+                Text = "Barcode Reader",
+                Icon = Properties.Resources.barcode1
+            };
+
+            if(Settings.Settings.StartAsNotifyIcon)
+            {
+                ShowInTaskbar = false;
+                Hide();
+            }
+            
+            NotifyIcon.DoubleClick += NotifyIconDoubleClick;
+        }
+
+        private void NotifyIconDoubleClick(object sender, EventArgs e)
+        {
+            NotifyIcon.Visible = false;
+            ShowInTaskbar = true;
+            Show();
+            BringIntoView();
         }
 
         private void ScreenshotButton_Click(object sender, RoutedEventArgs e)
@@ -131,10 +163,12 @@ namespace BarcodeReader
             {
                 BarcodeHistoryUserControl temp = new BarcodeHistoryUserControl(
                     CreateAndScanBarcode(
-                        r.GetValue<string>("value"), 
-                        (BarcodeFormat)Enum.Parse(typeof(BarcodeFormat), r.GetValue<string>("type"))), 
+                        r.GetValue<string>("value"),
+                        (BarcodeFormat)Enum.Parse(typeof(BarcodeFormat), r.GetValue<string>("type"))),
                         DateTime.Parse(r.GetValue<string>("date")));
+
                 temp.Deleted += OnHistoryDeleted;
+
                 HistoryStackpanel.Children.Add(temp);
             }
         }
@@ -160,12 +194,15 @@ namespace BarcodeReader
 
             ScanTextBox.Focus();
             if (HistoryStackpanel.Children.Count > 0) ScrollToTarget((BarcodeHistoryUserControl)HistoryStackpanel.Children[0]);
+
+            InitializeNotifyIcon();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             ScanScreenshotHotkey.Unregister();
             ScanTextboxHotkey.Unregister();
+            Settings.Close();
         }
 
         private void ScanButton_Click(object sender, RoutedEventArgs e)
@@ -182,7 +219,7 @@ namespace BarcodeReader
 
         private Result CreateAndScanBarcode(string text, BarcodeFormat format)
         {
-            ZXing.BarcodeWriter bcWriter = new ZXing.BarcodeWriter
+            BarcodeWriter bcWriter = new BarcodeWriter
             {
                 Format = format
             };
@@ -235,6 +272,21 @@ namespace BarcodeReader
                     ScanTextBox.Text = "";
                     BarcodeTypeComboBox.SelectedItem = BarcodeFormat.CODE_128;
                     break;
+            }
+        }
+
+        private void ConfigButton_Click(object sender, RoutedEventArgs e)
+        {
+            Settings.ShowDialog();
+        }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if(WindowState == WindowState.Minimized)
+            {
+                NotifyIcon.Visible = true;
+                ShowInTaskbar = false;
+                Hide();
             }
         }
     }

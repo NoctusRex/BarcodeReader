@@ -1,0 +1,15 @@
+﻿<Window x:Class="BarcodeReader.Windows.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BarcodeReader.Windows"
+        mc:Ignorable="d"
+        Title="Settings" Height="450" Width="800">
+    <Grid>
+        <Label Content="Settings" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontFamily="Tahoma" FontSize="20"/>
+        <CheckBox x:Name="StartAfterBootRadioButton" Content="Start after Windows boot" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top" FontFamily="Tahoma" BorderBrush="#FF004799"/>
+        <CheckBox x:Name="StartAsNotifyIconRadioButton" Content="Start as notify icon" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" FontFamily="Tahoma" BorderBrush="#FF004799"/>
+        <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="10,112,0,0" VerticalAlignment="Top" Width="152" Click="SaveButton_Click" FontFamily="Tahoma"/>
+    </Grid>
+</Window>

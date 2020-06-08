@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BarcodeReader"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" Closing="Window_Closing">
+        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" Closing="Window_Closing" Icon="Resources/barcode.ico" StateChanged="Window_StateChanged">
     <Grid>
 
         <Button ToolTip="Shortcut: End" x:Name="ScreenshotButton" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="50" Height="50" Click="ScreenshotButton_Click" BorderBrush="{x:Null}" Background="{x:Null}">
@@ -24,7 +24,7 @@
 
         <Label x:Name="InfoLabel" Content="Label" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" Height="23" FontSize="10" FontFamily="Tahoma"/>
 
-        <Button x:Name="ConfigButton"  HorizontalAlignment="Right" Margin="0,0,10,3" VerticalAlignment="Bottom" Width="19" Height="17" FontSize="10">
+        <Button x:Name="ConfigButton"  HorizontalAlignment="Right" Margin="0,0,10,3" VerticalAlignment="Bottom" Width="19" Height="17" FontSize="10" Click="ConfigButton_Click">
             <Image Source="Resources\cog.png"></Image>
         </Button>
 
