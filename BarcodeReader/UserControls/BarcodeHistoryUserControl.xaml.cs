@@ -1,8 +1,7 @@
-﻿using IronBarCode;
-using System;
-using System.Drawing;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using ZXing;
 
 namespace BarcodeReader
 {
@@ -11,7 +10,7 @@ namespace BarcodeReader
     /// </summary>
     public partial class BarcodeHistoryUserControl : UserControl
     {
-        public GeneratedBarcode Barcode { get; set; }
+        public Result Barcode { get; set; }
         public event EventHandler Deleted;
 
         public BarcodeHistoryUserControl()
@@ -19,13 +18,13 @@ namespace BarcodeReader
             InitializeComponent();
         }
 
-        public BarcodeHistoryUserControl(GeneratedBarcode barcode, DateTime timeStamp)
+        public BarcodeHistoryUserControl(Result barcode, DateTime timeStamp)
         {
             InitializeComponent();
 
             Barcode = barcode;
-            ContentLabel.Content = barcode.Value;
-            InfoLabel.Content = string.Format("Barcode Type: {0} - Scannend at {1}", barcode.BarcodeType, timeStamp);
+            ContentLabel.Content = barcode.Text;
+            InfoLabel.Content = string.Format("Barcode Type: {0} - Scannend at {1}", barcode.BarcodeFormat, timeStamp);
         }
 
         private void RemoveButton_Click(object sender, RoutedEventArgs e)
@@ -35,7 +34,12 @@ namespace BarcodeReader
 
         private void ShowButton_Click(object sender, RoutedEventArgs e)
         {
-            new Windows.BarcodeWindow((Bitmap)Barcode.Image).Show();
+            BarcodeWriter bcWriter = new BarcodeWriter
+            {
+                Format = Barcode.BarcodeFormat
+            };
+
+            new Windows.BarcodeWindow(bcWriter.Write(Barcode.Text)).Show();
         }
     }
 }
