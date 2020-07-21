@@ -96,6 +96,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Misc\BarcodeConstants.cs" />
+    <Compile Include="Misc\Fnc1Parser.cs" />
     <Compile Include="Misc\GlobalHotkey.cs" />
     <Compile Include="Misc\HotkeyConstants.cs" />
     <Compile Include="Misc\Settings.cs" />
@@ -194,6 +195,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\barcode.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\fnc1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

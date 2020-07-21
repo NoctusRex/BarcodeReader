@@ -113,6 +113,16 @@ namespace BarcodeReader.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap fnc1 {
+            get {
+                object obj = ResourceManager.GetObject("fnc1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap scanner_working {
             get {
                 object obj = ResourceManager.GetObject("scanner_working", resourceCulture);
