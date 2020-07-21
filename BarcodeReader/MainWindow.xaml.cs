@@ -13,6 +13,9 @@ using NoRe.Core;
 using Application = System.Windows.Application;
 using System.Text;
 using BarcodeReader.Misc;
+using System.Text.RegularExpressions;
+using Clipboard = System.Windows.Clipboard;
+using System.Collections.Generic;
 
 namespace BarcodeReader
 {
@@ -83,37 +86,55 @@ namespace BarcodeReader
         private void HandleScan(Result barcode)
         {
             if (barcode is null) return;
-           
-            BarcodeHistoryUserControl temp = TryGetHistory(barcode);
+            string barcodeText = HandleFnc1(barcode.Text);
+
+            BarcodeHistoryUserControl temp = TryGetHistory(barcode, barcodeText);
             if (temp is null)
             {
-                temp = new BarcodeHistoryUserControl(barcode, DateTime.Now);
+                temp = new BarcodeHistoryUserControl(barcode, DateTime.Now, barcodeText);
                 temp.Deleted += OnHistoryDeleted;
                 HistoryStackpanel.Children.Insert(0, temp);
-                Database.ExecuteNonQuery("INSERT INTO history (value, type, date) VALUES (@0, @1, @2)", barcode.Text, barcode.BarcodeFormat, DateTime.Now.ToString());
+                Database.ExecuteNonQuery("INSERT INTO history (value, type, date) VALUES (@0, @1, @2)", barcodeText, barcode.BarcodeFormat, DateTime.Now.ToString());
             }
 
-            ScrollToTarget(temp);
+            ScrollToTarget(temp, barcodeText);
 
-            WriteText(barcode.Text);
+            WriteText(barcodeText);
         }
 
-        private void ScrollToTarget(BarcodeHistoryUserControl target)
+        private string HandleFnc1(string barcode)
+        {
+            if (!barcode.StartsWith(BarcodeConstants.FNC1_SymbologyIdentifier)) return barcode;
+
+            string newBarcode = "";
+            foreach (KeyValuePair<Fnc1Parser.AII, string> ai in Fnc1Parser.Parse(barcode, true))
+            {
+                newBarcode += BarcodeConstants.FNC1 + ai.Key.AI + ai.Value;
+            }
+            return newBarcode;
+        }
+
+        private void ScrollToTarget(BarcodeHistoryUserControl target, string textToSet = "")
         {
             if (CurrentBarcode != null) CurrentBarcode.MainGrid.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF004799");
             CurrentBarcode = target;
             CurrentBarcode.MainGrid.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FFFC8706");
             HistoryScrollViewer.ScrollToVerticalOffset(target.TranslatePoint(new System.Windows.Point(), HistoryStackpanel).Y);
-            ScanTextBox.Text = target.Barcode.Text;
+
+            if (string.IsNullOrEmpty(textToSet))
+                ScanTextBox.Text = target.Barcode.Text;
+            else
+                ScanTextBox.Text = textToSet;
+
             BarcodeTypeComboBox.SelectedItem = target.Barcode.BarcodeFormat;
             ScanTextBox.SelectAll();
         }
 
-        private BarcodeHistoryUserControl TryGetHistory(Result barcode)
+        private BarcodeHistoryUserControl TryGetHistory(Result barcode, string barcodeText)
         {
             foreach (BarcodeHistoryUserControl history in HistoryStackpanel.Children)
             {
-                if (history.Barcode.Text == barcode.Text && history.Barcode.BarcodeFormat == barcode.BarcodeFormat) return history;
+                if (history.Barcode.Text == barcodeText && history.Barcode.BarcodeFormat == barcode.BarcodeFormat) return history;
             }
 
             return null;
@@ -130,22 +151,30 @@ namespace BarcodeReader
         private Result ReadBarcodeFromImage(Bitmap image)
         {
             if (image is null) return null;
-
-            return new ZXing.BarcodeReader().Decode(image);
+            ZXing.BarcodeReader reader = new ZXing.BarcodeReader();
+            reader.Options.AssumeGS1 = true;
+            reader.Options.TryHarder = true;
+            reader.Options.CharacterSet = "UTF-16";
+            return reader.Decode(image);
         }
 
         private void WriteText(string value)
         {
-            SendKeys.SendWait(value);
+            // use copy and paste, cause its faster and writes FNC1-Char
+            Clipboard.SetText(value);
+
+            if (ScanTextBox.IsFocused) ScanButton.Focus();
+
+            SendKeys.SendWait("^{v}");
         }
 
         private void RegisterHotkeys()
         {
-            ScanScreenshotHotkey = new Misc.GlobalHotkey(Misc.HotkeyConstants.NOMOD, Keys.End, this);
+            ScanScreenshotHotkey = new GlobalHotkey(HotkeyConstants.NOMOD, Keys.End, this);
             ScanScreenshotHotkey.Triggered += ScanScreenshotHotkeyTriggered;
             ScanScreenshotHotkey.Register();
 
-            ScanTextboxHotkey = new Misc.GlobalHotkey(Misc.HotkeyConstants.NOMOD, Keys.Home, this);
+            ScanTextboxHotkey = new GlobalHotkey(HotkeyConstants.NOMOD, Keys.Home, this);
             ScanTextboxHotkey.Triggered += ScanTextBoxHotkeyTriggered;
             ScanTextboxHotkey.Register();
         }
@@ -216,7 +245,12 @@ namespace BarcodeReader
         {
             if (string.IsNullOrEmpty(ScanTextBox.Text)) return;
 
-            HandleScan(CreateAndScanBarcode(ScanTextBox.Text.Replace(BarcodeConstants.FNC1_Placeholder, BarcodeConstants.FNC1), (BarcodeFormat)BarcodeTypeComboBox.SelectedItem));
+            HandleScan(CreateAndScanBarcode(ReplaceFnc1Placeholder(ScanTextBox.Text), (BarcodeFormat)BarcodeTypeComboBox.SelectedItem));
+        }
+
+        private string ReplaceFnc1Placeholder(string barcode)
+        {
+            return barcode.Replace(BarcodeConstants.FNC1_DisplayPlaceholder, BarcodeConstants.FNC1.ToString());
         }
 
         private Result CreateAndScanBarcode(string text, BarcodeFormat format)
@@ -290,6 +324,11 @@ namespace BarcodeReader
                 ShowInTaskbar = false;
                 Hide();
             }
+        }
+
+        private void Fnc1Button_Click(object sender, RoutedEventArgs e)
+        {
+            ScanTextBox.Text = ScanTextBox.Text.Insert(ScanTextBox.SelectionStart, BarcodeConstants.FNC1_DisplayPlaceholder);
         }
     }
 }

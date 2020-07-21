@@ -18,12 +18,17 @@ namespace BarcodeReader
             InitializeComponent();
         }
 
-        public BarcodeHistoryUserControl(Result barcode, DateTime timeStamp)
+        public BarcodeHistoryUserControl(Result barcode, DateTime timeStamp, string formattedFnc1Barcode = "")
         {
             InitializeComponent();
 
             Barcode = barcode;
-            ContentLabel.Content = barcode.Text.Replace(Misc.BarcodeConstants.FNC1, Misc.BarcodeConstants.FNC1_Placeholder);
+            
+            if (string.IsNullOrEmpty(formattedFnc1Barcode))
+                ContentLabel.Content = barcode.Text.Replace(Misc.BarcodeConstants.FNC1.ToString(), Misc.BarcodeConstants.FNC1_DisplayPlaceholder);
+            else
+                ContentLabel.Content = formattedFnc1Barcode.Replace(Misc.BarcodeConstants.FNC1.ToString(), Misc.BarcodeConstants.FNC1_DisplayPlaceholder);
+
             InfoLabel.Content = string.Format("Barcode Type: {0} - Scannend at {1}", barcode.BarcodeFormat, timeStamp);
         }
 
