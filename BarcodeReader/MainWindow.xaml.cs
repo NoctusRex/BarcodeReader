@@ -160,7 +160,7 @@ namespace BarcodeReader
 
         private void WriteText(string value)
         {
-            // use copy and paste, cause its faster and writes FNC1-Char
+            // use copy and paste, cause its faster and writes FNC1-Char which SendKeys does not
             Clipboard.SetText(value);
 
             if (ScanTextBox.IsFocused) ScanButton.Focus();

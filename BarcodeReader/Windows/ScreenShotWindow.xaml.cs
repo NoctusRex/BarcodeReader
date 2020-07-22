@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Application = System.Windows.Application;
+using MessageBox = System.Windows.MessageBox;
 using Rectangle = System.Drawing.Rectangle;
 
 namespace BarcodeReader.Windows
@@ -29,6 +32,12 @@ namespace BarcodeReader.Windows
 
         private int GetAreaWidth { get => Math.Abs(X.X - Y.X); }
         private int GetAreaHeight { get => Math.Abs(X.Y - Y.Y); }
+        /// <summary>
+        /// For CopyFromScreen the point of origin is 0,0 of the primary display.
+        /// There for if the primary screen is not the first, the X coordinate has to be moved
+        /// </summary>
+        private int XOffset { get; set; } = 0;
+        private bool Shown { get; set; } = false;
 
         public ScreenShotWindow()
         {
@@ -54,11 +63,12 @@ namespace BarcodeReader.Windows
                 Height = GetAreaHeight,
                 StrokeThickness = 3
             };
+            rect.MouseLeftButtonUp += GuiCanvas_MouseLeftButtonUp;
+            rect.KeyDown += GuiCanvas_KeyDown;
 
-            // -1 because mouse is on rectangle and does not trigger mouse up event
-            Canvas.SetLeft(rect, X.X - 1);
-            Canvas.SetTop(rect, X.Y - 1);
-
+            Canvas.SetLeft(rect, X.X);
+            Canvas.SetTop(rect, X.Y);
+            
             GuiCanvas.Children.Add(rect);
         }
 
@@ -69,12 +79,13 @@ namespace BarcodeReader.Windows
 
         private void CaptureScreenArea()
         {
-            Rectangle temp = new Rectangle(X.X, X.Y, GetAreaWidth, GetAreaHeight);
+            Rectangle temp = new Rectangle(X.X - XOffset, X.Y, GetAreaWidth, GetAreaHeight);
             Screenshot = new Bitmap(GetAreaWidth, GetAreaHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             using (Graphics g = Graphics.FromImage(Screenshot))
             {
                 g.CopyFromScreen(temp.Left, temp.Top, 0, 0, Screenshot.Size);
             }
+           // Screenshot.Save("C:\\temp\\" + DateTime.Now.Ticks + "-" + X.X + "-" + X.Y + " _ "+ temp.X + "-" + temp.Y + ".png", ImageFormat.Png);
         }
 
         private void GuiCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -99,5 +110,38 @@ namespace BarcodeReader.Windows
             Close();
         }
 
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+            if (Shown) return;
+            Shown = true;
+
+            // make window span over all screens
+            Rectangle totalSize = Rectangle.Empty;
+            XOffset = 0;
+            foreach (Screen screen in Screen.AllScreens)
+            {
+                // if bounds smaller 0 the screens are left next to primary screen
+                if (screen.Bounds.X < 0 )
+                    if(screen.Bounds.X < XOffset) XOffset = screen.Bounds.X;
+
+                totalSize = Rectangle.Union(totalSize, screen.Bounds);
+            }
+
+            XOffset = Math.Abs(XOffset);
+
+            Width = totalSize.Width;
+            Height = totalSize.Height;
+            Left = totalSize.Left;
+            Top = totalSize.Top;
+
+            UpdateLayout();
+        }
+
+        private void GuiCanvas_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            DialogResult = false;
+            Close();
+        }
     }
 }

@@ -5,7 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BarcodeReader.Windows"
         mc:Ignorable="d"
-        Title="ScreenShotWindow" Background="#02FFFFFF" Topmost="True" WindowStartupLocation="CenterScreen" WindowState="Maximized" WindowStyle="None" Foreground="Transparent" AllowsTransparency="True">
-    <Canvas x:Name="GuiCanvas" MouseMove="GuiCanvas_MouseMove" MouseLeftButtonDown="GuiCanvas_MouseLeftButtonDown" MouseLeftButtonUp="GuiCanvas_MouseLeftButtonUp" Background="#00000000">
-    </Canvas>
+        Title="ScreenShotWindow" Background="#02FFFFFF" Topmost="True" WindowStartupLocation="Manual" WindowStyle="None" Foreground="Transparent" AllowsTransparency="True" KeyDown="GuiCanvas_KeyDown">
+    
+    <Border BorderBrush="Red" BorderThickness="4" KeyDown="GuiCanvas_KeyDown">
+        <Canvas x:Name="GuiCanvas" MouseMove="GuiCanvas_MouseMove" MouseLeftButtonDown="GuiCanvas_MouseLeftButtonDown" MouseLeftButtonUp="GuiCanvas_MouseLeftButtonUp" Background="#00000000" KeyDown="GuiCanvas_KeyDown">
+        </Canvas>
+    </Border>
+    
 </Window>
