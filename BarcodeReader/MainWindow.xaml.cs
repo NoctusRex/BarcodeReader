@@ -1,21 +1,18 @@
-﻿using BarcodeReader.Windows;
+﻿using BarcodeReader.Misc;
+using BarcodeReader.Windows;
+using NoRe.Core;
+using NoRe.Database.Core.Models;
+using NoRe.Database.SqLite;
 using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Reflection;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Drawing;
-using System.Windows.Forms;
-using System.Reflection;
-using NoRe.Database.SqLite;
-using NoRe.Database.Core.Models;
 using ZXing;
-using NoRe.Core;
-using Application = System.Windows.Application;
-using System.Text;
-using BarcodeReader.Misc;
-using System.Text.RegularExpressions;
 using Clipboard = System.Windows.Clipboard;
-using System.Collections.Generic;
 
 namespace BarcodeReader
 {
@@ -24,8 +21,8 @@ namespace BarcodeReader
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Misc.GlobalHotkey ScanTextboxHotkey { get; set; }
-        private Misc.GlobalHotkey ScanScreenshotHotkey { get; set; }
+        private GlobalHotkey ScanTextboxHotkey { get; set; }
+        private GlobalHotkey ScanScreenshotHotkey { get; set; }
         private BarcodeHistoryUserControl CurrentBarcode { get; set; }
         private SqLiteWrapper Database { get; set; }
         private SettingsWindow Settings { get; set; }
@@ -170,11 +167,11 @@ namespace BarcodeReader
 
         private void RegisterHotkeys()
         {
-            ScanScreenshotHotkey = new GlobalHotkey(HotkeyConstants.NOMOD, Keys.End, this);
+            ScanScreenshotHotkey = new GlobalHotkey(HotkeyConstants.NOMOD, Settings.Settings.ScanHotkey, this);
             ScanScreenshotHotkey.Triggered += ScanScreenshotHotkeyTriggered;
             ScanScreenshotHotkey.Register();
 
-            ScanTextboxHotkey = new GlobalHotkey(HotkeyConstants.NOMOD, Keys.Home, this);
+            ScanTextboxHotkey = new GlobalHotkey(HotkeyConstants.NOMOD, Settings.Settings.RescanHotkey, this);
             ScanTextboxHotkey.Triggered += ScanTextBoxHotkeyTriggered;
             ScanTextboxHotkey.Register();
         }
@@ -231,9 +228,24 @@ namespace BarcodeReader
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            ScanScreenshotHotkey.Unregister();
-            ScanTextboxHotkey.Unregister();
-            Settings.Close();
+            switch (System.Windows.MessageBox.Show("Do you realy want to close this application?" + Environment.NewLine + "Yes: Close" + Environment.NewLine + "No: Minimize", "Close?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question))
+            {
+                case MessageBoxResult.Yes:
+                    ScanScreenshotHotkey.Unregister();
+                    ScanTextboxHotkey.Unregister();
+                    Settings.Close(false);
+                    break;
+
+                case MessageBoxResult.No:
+                    MinimizeToIcon();
+                    e.Cancel = true;
+                    break;
+                default:
+                    e.Cancel = true;
+
+                    break;
+            }
+
         }
 
         private void ScanButton_Click(object sender, RoutedEventArgs e)
@@ -318,12 +330,14 @@ namespace BarcodeReader
 
         private void Window_StateChanged(object sender, EventArgs e)
         {
-            if (WindowState == WindowState.Minimized)
-            {
-                NotifyIcon.Visible = true;
-                ShowInTaskbar = false;
-                Hide();
-            }
+            if (WindowState == WindowState.Minimized) MinimizeToIcon();
+        }
+
+        private void MinimizeToIcon()
+        {
+            NotifyIcon.Visible = true;
+            ShowInTaskbar = false;
+            Hide();
         }
 
         private void Fnc1Button_Click(object sender, RoutedEventArgs e)

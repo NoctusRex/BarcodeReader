@@ -1,21 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Application = System.Windows.Application;
-using MessageBox = System.Windows.MessageBox;
 using Rectangle = System.Drawing.Rectangle;
 
 namespace BarcodeReader.Windows
@@ -30,8 +19,8 @@ namespace BarcodeReader.Windows
         private System.Drawing.Point X { get; set; }
         private System.Drawing.Point Y { get; set; }
 
-        private int GetAreaWidth { get => Math.Abs(X.X - Y.X); }
-        private int GetAreaHeight { get => Math.Abs(X.Y - Y.Y); }
+        private int GetAreaWidth => Math.Abs(X.X - Y.X);
+        private int GetAreaHeight => Math.Abs(X.Y - Y.Y);
         /// <summary>
         /// For CopyFromScreen the point of origin is 0,0 of the primary display.
         /// There for if the primary screen is not the first, the X coordinate has to be moved
@@ -64,11 +53,10 @@ namespace BarcodeReader.Windows
                 StrokeThickness = 3
             };
             rect.MouseLeftButtonUp += GuiCanvas_MouseLeftButtonUp;
-            rect.KeyDown += GuiCanvas_KeyDown;
 
             Canvas.SetLeft(rect, X.X);
             Canvas.SetTop(rect, X.Y);
-            
+
             GuiCanvas.Children.Add(rect);
         }
 
@@ -85,7 +73,7 @@ namespace BarcodeReader.Windows
             {
                 g.CopyFromScreen(temp.Left, temp.Top, 0, 0, Screenshot.Size);
             }
-           // Screenshot.Save("C:\\temp\\" + DateTime.Now.Ticks + "-" + X.X + "-" + X.Y + " _ "+ temp.X + "-" + temp.Y + ".png", ImageFormat.Png);
+            // Screenshot.Save("C:\\temp\\" + DateTime.Now.Ticks + "-" + X.X + "-" + X.Y + " _ "+ temp.X + "-" + temp.Y + ".png", ImageFormat.Png);
         }
 
         private void GuiCanvas_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -122,8 +110,8 @@ namespace BarcodeReader.Windows
             foreach (Screen screen in Screen.AllScreens)
             {
                 // if bounds smaller 0 the screens are left next to primary screen
-                if (screen.Bounds.X < 0 )
-                    if(screen.Bounds.X < XOffset) XOffset = screen.Bounds.X;
+                if (screen.Bounds.X < 0)
+                    if (screen.Bounds.X < XOffset) XOffset = screen.Bounds.X;
 
                 totalSize = Rectangle.Union(totalSize, screen.Bounds);
             }

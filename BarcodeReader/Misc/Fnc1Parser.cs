@@ -53,20 +53,20 @@ namespace BarcodeReader.Misc
 
         public static bool HasCheckSum
         {
-            get { return Fnc1Parser.hasCheckSum; }
-            set { Fnc1Parser.hasCheckSum = value; }
+            get => Fnc1Parser.hasCheckSum;
+            set => Fnc1Parser.hasCheckSum = value;
         }
 
         public static char GroutSeperator
         {
-            get { return Fnc1Parser.groutSeperator; }
-            set { Fnc1Parser.groutSeperator = value; }
+            get => Fnc1Parser.groutSeperator;
+            set => Fnc1Parser.groutSeperator = value;
         }
 
         public static string EAN128StartCode
         {
-            get { return Fnc1Parser.ean128StartCode; }
-            set { Fnc1Parser.ean128StartCode = value; }
+            get => Fnc1Parser.ean128StartCode;
+            set => Fnc1Parser.ean128StartCode = value;
         }
 
         public static string[] Aiis => aiis;

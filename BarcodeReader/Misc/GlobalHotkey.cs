@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Interop;
@@ -16,7 +12,7 @@ namespace BarcodeReader.Misc
     /// </summary>
     public class GlobalHotkey : IDisposable
     {
-        public event  EventHandler Triggered;
+        public event EventHandler Triggered;
 
         private int Modifier { get; set; }
         private int Key { get; set; }
@@ -63,7 +59,10 @@ namespace BarcodeReader.Misc
             return IntPtr.Zero;
         }
 
-        public override int GetHashCode() => Modifier ^ Key ^ Hwnd.ToInt32();
+        public override int GetHashCode()
+        {
+            return Modifier ^ Key ^ Hwnd.ToInt32();
+        }
 
         public void Dispose()
         {

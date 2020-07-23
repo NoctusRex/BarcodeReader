@@ -5,11 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BarcodeReader.Windows"
         mc:Ignorable="d"
-        Title="Settings" Height="450" Width="800">
+        Title="Settings" Height="450" Width="800" Closing="Window_Closing">
     <Grid>
         <Label Content="Settings" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontFamily="Tahoma" FontSize="20"/>
         <CheckBox x:Name="StartAfterBootRadioButton" Content="Start after Windows boot" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top" FontFamily="Tahoma" BorderBrush="#FF004799"/>
         <CheckBox x:Name="StartAsNotifyIconRadioButton" Content="Start as notify icon" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" FontFamily="Tahoma" BorderBrush="#FF004799"/>
-        <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="10,112,0,0" VerticalAlignment="Top" Width="152" Click="SaveButton_Click" FontFamily="Tahoma"/>
+        <ComboBox x:Name ="ScanHotkeyComboBox" Margin="10,107,0,0" VerticalAlignment="Top" Height="18" HorizontalAlignment="Left" Width="153" FontFamily="Tahoma" FontSize="12"/>
+        <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="10,188,0,0" VerticalAlignment="Top" Width="152" Click="SaveButton_Click" FontFamily="Tahoma"/>
+        <Label Content="Scan-Hotkey" HorizontalAlignment="Left" Margin="6,83,0,0" VerticalAlignment="Top" FontFamily="Tahoma"/>
+        <ComboBox x:Name ="RescanHotkeyComboBox" Margin="10,153,0,0" VerticalAlignment="Top" Height="18" HorizontalAlignment="Left" Width="153" FontFamily="Tahoma" FontSize="12"/>
+        <Label Content="Rescan-Hotkey" HorizontalAlignment="Left" Margin="6,129,0,0" VerticalAlignment="Top" FontFamily="Tahoma"/>
     </Grid>
 </Window>

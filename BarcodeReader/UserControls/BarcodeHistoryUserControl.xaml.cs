@@ -23,7 +23,7 @@ namespace BarcodeReader
             InitializeComponent();
 
             Barcode = barcode;
-            
+
             if (string.IsNullOrEmpty(formattedFnc1Barcode))
                 ContentLabel.Content = barcode.Text.Replace(Misc.BarcodeConstants.FNC1.ToString(), Misc.BarcodeConstants.FNC1_DisplayPlaceholder);
             else
