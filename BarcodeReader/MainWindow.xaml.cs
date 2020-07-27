@@ -12,7 +12,9 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using ZXing;
+using ZXing.Rendering;
 using Clipboard = System.Windows.Clipboard;
+using Color = System.Drawing.Color;
 
 namespace BarcodeReader
 {
@@ -148,11 +150,30 @@ namespace BarcodeReader
         private Result ReadBarcodeFromImage(Bitmap image)
         {
             if (image is null) return null;
+            image = AddWhiteBorder(image, 20);
+            // image.Save("C:\\temp\\" + DateTime.Now.Ticks + ".png", ImageFormat.Png);
+
             ZXing.BarcodeReader reader = new ZXing.BarcodeReader();
             reader.Options.AssumeGS1 = true;
             reader.Options.TryHarder = true;
-            reader.Options.CharacterSet = "UTF-16";
+            reader.TryInverted = true;
+            reader.AutoRotate = true;
             return reader.Decode(image);
+        }
+
+        private Bitmap AddWhiteBorder(Bitmap bmp, int borderSize)
+        {
+            int newWidth = bmp.Width + (borderSize * 2);
+            int newHeight = bmp.Height + (borderSize * 2);
+
+            System.Drawing.Image newImage = new Bitmap(newWidth, newHeight);
+            using (Graphics gfx = Graphics.FromImage(newImage))
+            {
+                using (System.Drawing.Brush border = new SolidBrush(Color.White)) gfx.FillRectangle(border, 0, 0, newWidth, newHeight);
+                
+                gfx.DrawImage(bmp, new Rectangle(borderSize, borderSize, bmp.Width, bmp.Height));
+            }
+            return (Bitmap)newImage;
         }
 
         private void WriteText(string value)
@@ -269,8 +290,17 @@ namespace BarcodeReader
         {
             BarcodeWriter bcWriter = new BarcodeWriter
             {
-                Format = format
+                Format = format,
+                Renderer = new BitmapRenderer()
+                {
+                    Background = Color.White,
+                    Foreground = Color.Black,
+                    DpiX = 1000,
+                    DpiY = 1000
+                }
             };
+
+            bcWriter.Options.PureBarcode = true;
 
             return ReadBarcodeFromImage(bcWriter.Write(text));
         }
