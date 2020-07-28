@@ -1,0 +1,13 @@
+﻿<UserControl x:Class="BarcodeReader.UserControls.AiUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:BarcodeReader.UserControls"
+             mc:Ignorable="d" d:DesignWidth="800" Height="87.167">
+    <Grid Background="#FF004799" Margin="0,5">
+        <Label Content="Label" x:Name="AiLabel" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Foreground="White" FontFamily="Tahoma" FontSize="14" FontWeight="Bold"/>
+        <Label Content="Label" x:Name="AiDescribtionLabel" HorizontalAlignment="Left" Margin="75,10,0,0" VerticalAlignment="Top" Foreground="White" FontFamily="Tahoma" FontSize="14" FontWeight="Bold"/>
+        <Label Content="Label" x:Name="AiContentLabel" HorizontalAlignment="Left" Margin="10,39,0,0" VerticalAlignment="Top" Foreground="White" FontFamily="Tahoma" FontSize="14"/>
+    </Grid>
+</UserControl>

@@ -8,11 +8,11 @@
         Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" Closing="Window_Closing" Icon="Resources/barcode.ico" StateChanged="Window_StateChanged">
     <Grid>
 
-        <Button ToolTip="Shortcut: End" x:Name="ScreenshotButton" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="50" Height="50" Click="ScreenshotButton_Click" BorderBrush="{x:Null}" Background="{x:Null}">
+        <Button ToolTip="Take a screenshot of a barcode" x:Name="ScreenshotButton" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="50" Height="50" Click="ScreenshotButton_Click" BorderBrush="{x:Null}" Background="{x:Null}">
             <Image Source="Resources\camera_black.png" HorizontalAlignment="Left"></Image>
         </Button>
 
-        <Button ToolTip="Shortcut: Pos1" x:Name="ScanButton" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Width="50" Height="50" Background="{x:Null}" BorderBrush="{x:Null}" Click="ScanButton_Click">
+        <Button ToolTip="Scan the current barcode" x:Name="ScanButton" HorizontalAlignment="Right" Margin="0,10,10,0" VerticalAlignment="Top" Width="50" Height="50" Background="{x:Null}" BorderBrush="{x:Null}" Click="ScanButton_Click">
             <Image Source="Resources\scanner_working.png" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
         </Button>
 
@@ -28,7 +28,7 @@
 
         <Label x:Name="InfoLabel" Content="Label" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" Height="23" FontSize="10" FontFamily="Tahoma"/>
 
-        <Button x:Name="ConfigButton"  HorizontalAlignment="Right" Margin="0,0,10,3" VerticalAlignment="Bottom" Width="19" Height="17" FontSize="10" Click="ConfigButton_Click">
+        <Button x:Name="ConfigButton" ToolTip="Settings"  HorizontalAlignment="Right" Margin="0,0,10,3" VerticalAlignment="Bottom" Width="19" Height="17" FontSize="10" Click="ConfigButton_Click">
             <Image Source="Resources\cog.png"></Image>
         </Button>
 

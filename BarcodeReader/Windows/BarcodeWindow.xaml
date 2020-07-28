@@ -5,8 +5,32 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BarcodeReader.Windows"
         mc:Ignorable="d"
-        Title="BarcodeWindow" Height="450" Width="800">
+        Title="BarcodeWindow" Height="596" Width="1044">
     <Grid>
-        <Image x:Name="BarcodeImage"/>
+        <Image x:Name="BarcodeImage" Margin="10,10,10,0" VerticalAlignment="Top" Height="205"/>
+        <Rectangle Fill="#FFF4F4F5" Height="2" Margin="5,220,5,0" Stroke="Black" VerticalAlignment="Top"/>
+
+        <GroupBox Margin="10,229,0,10" HorizontalAlignment="Left" Width="381" FontFamily="Tahoma" FontSize="14">
+            <GroupBox.Header>
+                <Label FontWeight="Bold" FontSize="16">General Information</Label>
+            </GroupBox.Header>
+            <StackPanel>
+                <Label Content="Format:" FontFamily="Tahoma" FontWeight="Bold"/>
+                <Label Content="Label" x:Name="FormatLabel" FontFamily="Tahoma" Margin="10,0,0,0"/>
+                <Label Content="Is GS1:" FontFamily="Tahoma" FontWeight="Bold"/>
+                <Label Content="Label" x:Name="GS1Label" FontFamily="Tahoma" Margin="10,0,0,0"/>
+                <Label Content="Content:" FontFamily="Tahoma" FontWeight="Bold"/>
+                <Label Content="Label" x:Name="ContentLabel" FontFamily="Tahoma" Margin="10,0,0,0"/>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Margin="396,229,10,10" FontFamily="Tahoma">
+            <GroupBox.Header>
+                <Label FontWeight="Bold" FontSize="16">Application Identifier</Label>
+            </GroupBox.Header>
+            <ScrollViewer x:Name="Gs1ScrollViewer" Margin="0,0,-2,2">
+                <StackPanel x:Name="Gs1Stackpanel"  CanHorizontallyScroll="True" CanVerticallyScroll="True"></StackPanel>
+            </ScrollViewer>
+        </GroupBox>
     </Grid>
 </Window>

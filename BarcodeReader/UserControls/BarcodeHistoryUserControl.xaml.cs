@@ -39,12 +39,7 @@ namespace BarcodeReader
 
         private void ShowButton_Click(object sender, RoutedEventArgs e)
         {
-            BarcodeWriter bcWriter = new BarcodeWriter
-            {
-                Format = Barcode.BarcodeFormat
-            };
-
-            new Windows.BarcodeWindow(bcWriter.Write(Barcode.Text)).Show();
+            new Windows.BarcodeWindow(Barcode).Show();
         }
     }
 }
