@@ -117,6 +117,7 @@
     <Compile Include="BarcodeStuff\Engines\Core\FormatMap.cs" />
     <Compile Include="BarcodeStuff\Models\ApplicationIdentifier.cs" />
     <Compile Include="BarcodeStuff\Models\Barcode.cs" />
+    <Compile Include="Database\DatabaseStatements.cs" />
     <Compile Include="Misc\GlobalHotkey.cs" />
     <Compile Include="Misc\HotkeyConstants.cs" />
     <Compile Include="Misc\Settings.cs" />

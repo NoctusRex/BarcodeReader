@@ -1,13 +1,13 @@
 ﻿using BarcodeReader.BarcodeStuff;
 using BarcodeReader.BarcodeStuff.Engines.Core;
 using BarcodeReader.BarcodeStuff.Models;
+using BarcodeReader.Database;
 using BarcodeReader.Misc;
 using BarcodeReader.Windows;
-using NoRe.Core;
 using NoRe.Database.Core.Models;
-using NoRe.Database.SqLite;
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Forms;
@@ -24,7 +24,7 @@ namespace BarcodeReader
         private GlobalHotkey ScanTextboxHotkey { get; set; }
         private GlobalHotkey ScanScreenshotHotkey { get; set; }
         private BarcodeHistoryUserControl CurrentBarcode { get; set; }
-        private SqLiteWrapper Database { get; set; }
+        private DatabaseStatements DatabaseStatements { get; set; }
         private SettingsWindow Settings { get; set; }
         private NotifyIcon NotifyIcon { get; set; }
 
@@ -35,10 +35,11 @@ namespace BarcodeReader
         public MainWindow()
         {
             InitializeComponent();
-            Database = new SqLiteWrapper(System.IO.Path.Combine(Pathmanager.StartupDirectory, "History.db"), "3");
 
-            Database.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS history (id INTEGER PRIMARY KEY AUTOINCREMENT, value TEXT, type TEXT, date TEXT)");
             Settings = new SettingsWindow();
+            DatabaseStatements = new DatabaseStatements();
+
+            DatabaseStatements.CreateTable();
         }
 
         private void InitializeNotifyIcon()
@@ -51,14 +52,13 @@ namespace BarcodeReader
                 Text = "Barcode Reader",
                 Icon = Properties.Resources.barcode1
             };
+            NotifyIcon.DoubleClick += NotifyIconDoubleClick;
 
             if (Settings.Settings.StartAsNotifyIcon)
             {
                 ShowInTaskbar = false;
                 Hide();
             }
-
-            NotifyIcon.DoubleClick += NotifyIconDoubleClick;
         }
 
         private void RegisterHotkeys()
@@ -83,7 +83,7 @@ namespace BarcodeReader
         {
             HistoryStackpanel.Children.Clear();
 
-            foreach (Row r in Database.ExecuteReader("SELECT * FROM history ORDER BY id DESC").Rows)
+            foreach (Row r in DatabaseStatements.GetHistory())
             {
                 BarcodeHistoryUserControl temp = new BarcodeHistoryUserControl(
                     CreateAndScanBarcode(
@@ -123,35 +123,17 @@ namespace BarcodeReader
             BringIntoView();
         }
 
-        private void ScreenshotButton_Click(object sender, RoutedEventArgs e)
-        {
-            HandleScan(ReadBarcodeFromImage(TakeScreenshot()));
-        }
+        private void ScreenshotButton_Click(object sender, RoutedEventArgs e) => HandleScan(ReadBarcodeFromImage(TakeScreenshot()));
 
-        private void ScanButton_Click(object sender, RoutedEventArgs e)
-        {
-            AddBarcode();
-        }
+        private void ScanButton_Click(object sender, RoutedEventArgs e) => AddBarcode();
 
-        private void ConfigButton_Click(object sender, RoutedEventArgs e)
-        {
-            Settings.ShowDialog();
-        }
+        private void ConfigButton_Click(object sender, RoutedEventArgs e) => Settings.ShowDialog();
 
-        private void Fnc1Button_Click(object sender, RoutedEventArgs e)
-        {
-            ScanTextBox.Text = ScanTextBox.Text.Insert(ScanTextBox.SelectionStart, BarcodeConstants.FNC1_DisplayPlaceholder);
-        }
+        private void Fnc1Button_Click(object sender, RoutedEventArgs e) => ScanTextBox.Text = ScanTextBox.Text.Insert(ScanTextBox.SelectionStart, BarcodeConstants.FNC1_DisplayPlaceholder);
 
-        private void ScanScreenshotHotkeyTriggered(object sender, EventArgs e)
-        {
-            HandleScan(ReadBarcodeFromImage(TakeScreenshot()));
-        }
+        private void ScanScreenshotHotkeyTriggered(object sender, EventArgs e) => HandleScan(ReadBarcodeFromImage(TakeScreenshot()));
 
-        private void ScanTextBoxHotkeyTriggered(object sender, EventArgs e)
-        {
-            AddBarcode();
-        }
+        private void ScanTextBoxHotkeyTriggered(object sender, EventArgs e) => AddBarcode();
 
         #endregion
 
@@ -165,6 +147,7 @@ namespace BarcodeReader
                     ScanScreenshotHotkey.Unregister();
                     ScanTextboxHotkey.Unregister();
                     Settings.Close(false);
+                    DatabaseStatements?.Dispose();
                     break;
 
                 case MessageBoxResult.No:
@@ -179,10 +162,7 @@ namespace BarcodeReader
 
         }
 
-        private void OnHistoryDeleted(object sender, EventArgs e)
-        {
-            DeleteHistory((BarcodeHistoryUserControl)sender);
-        }
+        private void OnHistoryDeleted(object sender, EventArgs e) => DeleteHistory((BarcodeHistoryUserControl)sender);
 
         private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
@@ -252,37 +232,31 @@ namespace BarcodeReader
         {
             ScreenShotWindow screenShotWindow = new ScreenShotWindow();
             bool? result = screenShotWindow.TakeScreenshot();
+
             if (result is null || !(bool)result) return null;
             return screenShotWindow.Screenshot;
         }
 
-        private Barcode ReadBarcodeFromImage(Bitmap image)
-        {
-            return BarcodeEngineLoader.BarcodeEngine.Read(image);
-        }
+        private Barcode ReadBarcodeFromImage(Bitmap image) => BarcodeEngineLoader.BarcodeEngine.Read(image);
 
-        private string ReplaceFnc1Placeholder(string barcode)
-        {
-            return barcode.Replace(BarcodeConstants.FNC1_DisplayPlaceholder, BarcodeConstants.FNC1.ToString());
-        }
+        private string ReplaceFnc1Placeholder(string barcode) => barcode.Replace(BarcodeConstants.FNC1_DisplayPlaceholder, BarcodeConstants.FNC1.ToString());
 
         private void HandleScan(Barcode barcode)
         {
             if (barcode is null) return;
-            string barcodeText = barcode.Text;
 
-            BarcodeHistoryUserControl temp = TryGetHistory(barcode, barcodeText);
+            BarcodeHistoryUserControl temp = TryGetHistory(barcode, barcode.Text);
             if (temp is null)
             {
-                temp = new BarcodeHistoryUserControl(barcode, DateTime.Now, barcodeText);
+                temp = new BarcodeHistoryUserControl(barcode, DateTime.Now, barcode.Text);
                 temp.Deleted += OnHistoryDeleted;
                 HistoryStackpanel.Children.Insert(0, temp);
-                Database.ExecuteNonQuery("INSERT INTO history (value, type, date) VALUES (@0, @1, @2)", barcodeText, barcode.Format, DateTime.Now.ToString());
+                DatabaseStatements.InsertBarcode(barcode.Text, barcode.Format);
             }
 
-            ScrollToTarget(temp, barcodeText);
+            ScrollToTarget(temp, barcode.Text);
 
-            WriteText(barcodeText);
+            WriteText(barcode.Text);
         }
 
         private void WriteText(string value)
@@ -295,24 +269,15 @@ namespace BarcodeReader
             SendKeys.SendWait("^{v}");
         }
 
-        private Barcode CreateAndScanBarcode(string text, BarcodeFormat format)
-        {
-            return ReadBarcodeFromImage(BarcodeEngineLoader.BarcodeEngine.Write(text, format));
-        }
+        private Barcode CreateAndScanBarcode(string text, BarcodeFormat format) => ReadBarcodeFromImage(BarcodeEngineLoader.BarcodeEngine.Write(text, format));
 
         #endregion
 
         #region "History handling"
 
-        private BarcodeHistoryUserControl TryGetHistory(Barcode barcode, string barcodeText)
-        {
-            foreach (BarcodeHistoryUserControl history in HistoryStackpanel.Children)
-            {
-                if (history.Barcode.Text == barcodeText && history.Barcode.Format == barcode.Format) return history;
-            }
-
-            return null;
-        }
+        private BarcodeHistoryUserControl TryGetHistory(Barcode barcode, string barcodeText) =>
+             HistoryStackpanel.Children.OfType<BarcodeHistoryUserControl>().
+             FirstOrDefault(x => x.Barcode.Text == barcodeText && x.Barcode.Format == barcode.Format);
 
         private void ScrollToTarget(BarcodeHistoryUserControl target, string textToSet = "")
         {
@@ -332,7 +297,7 @@ namespace BarcodeReader
 
         private void DeleteHistory(BarcodeHistoryUserControl history)
         {
-            Database.ExecuteNonQuery("DELETE FROM history WHERE value=@0 AND type=@1", history.Barcode.Text, history.Barcode.Format);
+            DatabaseStatements.DeleteHistory(history.Barcode.Text, history.Barcode.Format);
             HistoryStackpanel.Children.Remove(history);
         }
 

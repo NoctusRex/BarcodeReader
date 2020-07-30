@@ -12,7 +12,7 @@ namespace BarcodeReader
         {
             e.Handled = true;
 
-            MessageBox.Show(e.Exception.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(e.Exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
     }
