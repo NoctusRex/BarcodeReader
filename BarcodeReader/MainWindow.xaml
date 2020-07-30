@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BarcodeReader"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" Closing="Window_Closing" Icon="Resources/barcode.ico" StateChanged="Window_StateChanged">
+        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" Closing="Window_Closing" Icon="Resources/barcode.ico" StateChanged="Window_StateChanged" UseLayoutRounding="False">
     <Grid>
 
         <Button ToolTip="Take a screenshot of a barcode" x:Name="ScreenshotButton" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="50" Height="50" Click="ScreenshotButton_Click" BorderBrush="{x:Null}" Background="{x:Null}">
@@ -20,7 +20,7 @@
             <Image Source="Resources\fnc1.png" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
         </Button>
 
-        <TextBox x:Name="ScanTextBox" Height="50" Margin="272,10,120,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" FontSize="32" FontFamily="Tahoma" PreviewKeyDown="Window_KeyDown" MaxLines="1"/>
+        <TextBox x:Name="ScanTextBox" Height="50" Margin="272,10,120,0" Text="" VerticalAlignment="Top" FontSize="32" FontFamily="Tahoma" PreviewKeyDown="Window_KeyDown" MaxLines="1" BorderBrush="Black" BorderThickness="2"/>
 
         <ScrollViewer x:Name="HistoryScrollViewer" Margin="10,75,10,25">
             <StackPanel x:Name="HistoryStackpanel"  CanHorizontallyScroll="True" CanVerticallyScroll="True"></StackPanel>
@@ -28,11 +28,11 @@
 
         <Label x:Name="InfoLabel" Content="Label" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Bottom" Height="23" FontSize="10" FontFamily="Tahoma"/>
 
-        <Button x:Name="ConfigButton" ToolTip="Settings"  HorizontalAlignment="Right" Margin="0,0,10,3" VerticalAlignment="Bottom" Width="19" Height="17" FontSize="10" Click="ConfigButton_Click">
+        <Button x:Name="ConfigButton" ToolTip="Settings"  HorizontalAlignment="Right" Margin="0,0,10,3" VerticalAlignment="Bottom" Width="19" Height="17" FontSize="10" Click="ConfigButton_Click" BorderBrush="{x:Null}">
             <Image Source="Resources\cog.png"></Image>
         </Button>
 
-        <ComboBox x:Name ="BarcodeTypeComboBox" Margin="74,10,0,0" VerticalAlignment="Top" Height="50" HorizontalAlignment="Left" Width="193" FontFamily="Tahoma" FontSize="32"/>
+        <ComboBox x:Name ="BarcodeTypeComboBox" Margin="74,10,0,0" VerticalAlignment="Top" Height="50" HorizontalAlignment="Left" Width="193" FontFamily="Tahoma" FontSize="32" BorderBrush="#FFFC8706" BorderThickness="3"/>
 
     </Grid>
 </Window>

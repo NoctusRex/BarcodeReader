@@ -1,4 +1,7 @@
-﻿using BarcodeReader.Misc;
+﻿using BarcodeReader.BarcodeStuff;
+using BarcodeReader.BarcodeStuff.Engines.Core;
+using BarcodeReader.BarcodeStuff.Models;
+using BarcodeReader.Misc;
 using BarcodeReader.UserControls;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,23 +17,17 @@ namespace BarcodeReader.Windows
     /// </summary>
     public partial class BarcodeWindow : Window
     {
-        public BarcodeWindow(Result barcode)
+        public BarcodeWindow(Barcode barcode)
         {
             InitializeComponent();
 
-            BarcodeWriter bcWriter = new BarcodeWriter
-            {
-                Format = barcode.BarcodeFormat
-            };
-            bool isGs1 = barcode.Text.Contains(BarcodeConstants.FNC1.ToString());
+            BarcodeImage.Source = ConvertBitmapToImageSource(BarcodeEngineLoader.BarcodeEngine.Write(barcode.Text, barcode.Format));
 
-            BarcodeImage.Source = ConvertBitmapToImageSource(bcWriter.Write(barcode.Text));
-
-            FormatLabel.Content = barcode.BarcodeFormat.ToString();
-            GS1Label.Content = isGs1.ToString();
+            FormatLabel.Content = barcode.Format.ToString();
+            GS1Label.Content = barcode.IsGS1.ToString();
             ContentLabel.Content = barcode.Text.Replace(BarcodeConstants.FNC1.ToString(), BarcodeConstants.FNC1_DisplayPlaceholder);
 
-            if (isGs1) SetGs1Controls(barcode.Text);
+            if (barcode.IsGS1) SetGs1Controls(barcode);
         }
 
         private BitmapImage ConvertBitmapToImageSource(Bitmap bitmap)
@@ -49,14 +46,11 @@ namespace BarcodeReader.Windows
             }
         }
 
-        private void SetGs1Controls(string barcode)
+        private void SetGs1Controls(Barcode barcode)
         {
-            // restore orignal barcode
-            barcode =  BarcodeConstants.FNC1_SymbologyIdentifier + barcode.TrimStart(BarcodeConstants.FNC1);
-
-            foreach (KeyValuePair<Fnc1Parser.AII, string> ai in Fnc1Parser.Parse(barcode, false))
+            foreach (ApplicationIdentifier ai in barcode.ApplicationIdentifer)
             {
-                Gs1Stackpanel.Children.Add(new AiUserControl(ai.Key, ai.Value));
+                Gs1Stackpanel.Children.Add(new AiUserControl(ai));
             }
         }
 

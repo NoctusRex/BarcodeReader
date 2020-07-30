@@ -108,8 +108,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Misc\BarcodeConstants.cs" />
-    <Compile Include="Misc\Fnc1Parser.cs" />
+    <Compile Include="BarcodeStuff\BarcodeConstants.cs" />
+    <Compile Include="BarcodeStuff\Engines\Core\BarcodeEngineLoader.cs" />
+    <Compile Include="BarcodeStuff\Engines\Core\BarcodeFormats.cs" />
+    <Compile Include="BarcodeStuff\Engines\Core\IBarcodeEngine.cs" />
+    <Compile Include="BarcodeStuff\Engines\ZXingBarcodeEngine.cs" />
+    <Compile Include="BarcodeStuff\Fnc1Parser.cs" />
+    <Compile Include="BarcodeStuff\Engines\Core\FormatMap.cs" />
+    <Compile Include="BarcodeStuff\Models\ApplicationIdentifier.cs" />
+    <Compile Include="BarcodeStuff\Models\Barcode.cs" />
     <Compile Include="Misc\GlobalHotkey.cs" />
     <Compile Include="Misc\HotkeyConstants.cs" />
     <Compile Include="Misc\Settings.cs" />

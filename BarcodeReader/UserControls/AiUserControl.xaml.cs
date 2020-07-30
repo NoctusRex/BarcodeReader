@@ -1,5 +1,5 @@
-﻿using System.Windows.Controls;
-using static BarcodeReader.Misc.Fnc1Parser;
+﻿using BarcodeReader.BarcodeStuff.Models;
+using System.Windows.Controls;
 
 namespace BarcodeReader.UserControls
 {
@@ -8,13 +8,13 @@ namespace BarcodeReader.UserControls
     /// </summary>
     public partial class AiUserControl : UserControl
     {
-        public AiUserControl(AII ai, string content)
+        public AiUserControl(ApplicationIdentifier ai)
         {
             InitializeComponent();
             
             AiLabel.Content = ai.AI;
             AiDescribtionLabel.Content = ai.Description;
-            AiContentLabel.Content = content;
+            AiContentLabel.Content = ai.Value;
         }
     }
 }

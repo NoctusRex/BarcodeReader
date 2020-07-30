@@ -1,4 +1,4 @@
-﻿namespace BarcodeReader.Misc
+﻿namespace BarcodeReader.BarcodeStuff
 {
     public static class BarcodeConstants
     {

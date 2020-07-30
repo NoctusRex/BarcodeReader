@@ -1,54 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BarcodeReader.BarcodeStuff.Models;
 
-namespace BarcodeReader.Misc
+namespace BarcodeReader.BarcodeStuff
 {
     /// <summary>
     /// https://stackoverflow.com/questions/9721718/ean128-or-gs1-128-decode-c-sharp
     /// </summary>
     public static class Fnc1Parser
     {
-        public enum DataType
-        {
-            Numeric,
-            Alphanumeric
-        }
 
-        /// <summary>
-        /// Information Class for an Application Identifier (AI)
-        /// </summary>
-        public class AII
-        {
-            public string AI { get; set; }
-            public string Description { get; set; }
-            public int LengthOfAI { get; set; }
-            public DataType DataDescription { get; set; }
-            public int LengthOfData { get; set; }
-            public bool FNC1 { get; set; }
-
-            public AII(string AI, string Description, int LengthOfAI, DataType DataDescription, int LengthOfData, bool FNC1)
-            {
-                this.AI = AI;
-                this.Description = Description;
-                this.LengthOfAI = LengthOfAI;
-                this.DataDescription = DataDescription;
-                this.LengthOfData = LengthOfData;
-                this.FNC1 = FNC1;
-            }
-
-            public override string ToString()
-            {
-                return string.Format("{0} [{1}]", AI, Description);
-            }
-        }
-
-        private static readonly SortedDictionary<string, AII> aiiDict = new SortedDictionary<string, AII>();
-        private static readonly string[] aiis;
+        private static readonly SortedDictionary<string, ApplicationIdentifier> aiiDict = new SortedDictionary<string, ApplicationIdentifier>();
         private static readonly int minLengthOfAI = 1;
         private static readonly int maxLengthOfAI = 4;
-        private static char groupSeperator = BarcodeConstants.FNC1;
-        private static string ean128StartCode = BarcodeConstants.FNC1_SymbologyIdentifier;
+
         private static bool hasCheckSum = false;
 
         public static bool HasCheckSum
@@ -56,20 +22,6 @@ namespace BarcodeReader.Misc
             get => Fnc1Parser.hasCheckSum;
             set => Fnc1Parser.hasCheckSum = value;
         }
-
-        public static char GroutSeperator
-        {
-            get => Fnc1Parser.groupSeperator;
-            set => Fnc1Parser.groupSeperator = value;
-        }
-
-        public static string EAN128StartCode
-        {
-            get => Fnc1Parser.ean128StartCode;
-            set => Fnc1Parser.ean128StartCode = value;
-        }
-
-        public static string[] Aiis => aiis;
 
         static Fnc1Parser()
         {
@@ -186,7 +138,8 @@ namespace BarcodeReader.Misc
             Add("97", "Company specific", 2, DataType.Alphanumeric, 30, true);
             Add("98", "Company specific", 2, DataType.Alphanumeric, 30, true);
             Add("99", "Company specific", 2, DataType.Alphanumeric, 30, true);
-            aiis = aiiDict.Keys.ToArray();
+
+
             minLengthOfAI = aiiDict.Values.Min(el => el.LengthOfAI);
             maxLengthOfAI = aiiDict.Values.Max(el => el.LengthOfAI);
         }
@@ -200,10 +153,7 @@ namespace BarcodeReader.Misc
         /// <param name="DataDescription">The type of the content</param>
         /// <param name="LengthOfData">The max lenght of the content</param>
         /// <param name="FNC1">Support a group seperator</param>
-        public static void Add(string AI, string Description, int LengthOfAI, DataType DataDescription, int LengthOfData, bool FNC1)
-        {
-            aiiDict[AI] = new AII(AI, Description, LengthOfAI, DataDescription, LengthOfData, FNC1);
-        }
+        public static void Add(string AI, string Description, int LengthOfAI, DataType DataDescription, int LengthOfData, bool FNC1) => aiiDict[AI] = new ApplicationIdentifier(AI, Description, LengthOfAI, DataDescription, LengthOfData, FNC1);
 
         /// <summary>
         /// Parse the ean128 code
@@ -211,15 +161,15 @@ namespace BarcodeReader.Misc
         /// <param name="data">The raw scanner data</param>
         /// <param name="throwException">If an exception will be thrown if an AI cannot be found</param>
         /// <returns>The different parts of the ean128 code</returns>
-        public static Dictionary<AII, string> Parse(string data, bool throwException = false)
+        public static List<ApplicationIdentifier> Parse(string data, bool throwException = false)
         {
             // cut off the EAN128 start code 
-            if (data.StartsWith(EAN128StartCode)) data = data.Substring(EAN128StartCode.Length);
+            if (data.StartsWith(BarcodeConstants.FNC1_SymbologyIdentifier)) data = data.Substring(BarcodeConstants.FNC1_SymbologyIdentifier.Length);
 
             // cut off the check sum
             if (HasCheckSum) data = data.Substring(0, data.Length - 2);
 
-            Dictionary<AII, string> result = new Dictionary<AII, string>();
+            List<ApplicationIdentifier> result = new List<ApplicationIdentifier>();
             int index = 0;
             // walk through the EAN128 code
             while (index < data.Length)
@@ -232,8 +182,8 @@ namespace BarcodeReader.Misc
                     return result;
                 }
                 // get the data to the current AI
-                string code = GetCode(data, ai, ref index);
-                result[ai] = code;
+                ai.Value = GetCode(data, ai, ref index);
+                result.Add(ai);
             }
 
             return result;
@@ -246,15 +196,15 @@ namespace BarcodeReader.Misc
         /// <param name="index">The refrence of the current position</param>
         /// <param name="usePlaceHolder">Sets if the last character of the AI should replaced with a placehoder ("d")</param>
         /// <returns>The current AI or null if no match was found</returns>
-        private static AII GetAI(string data, ref int index, bool usePlaceHolder = false, bool trimGs1 = false)
+        private static ApplicationIdentifier GetAI(string data, ref int index, bool usePlaceHolder = false, bool trimGs1 = false)
         {
-            AII result = null;
+            ApplicationIdentifier result = null;
             // Step through the different lenghts of the AIs
             for (int i = minLengthOfAI; i <= maxLengthOfAI; i++)
             {
                 // get the AI sub string
                 string ai = data.Substring(index, i);
-                if (trimGs1) ai = ai.TrimStart(BarcodeConstants.FNC1);
+                ai = ai.TrimStart(BarcodeConstants.FNC1);
 
                 // store ai without placeholder 'd'
                 string originalAi = ai;
@@ -275,12 +225,6 @@ namespace BarcodeReader.Misc
             // if no AI found here, than try it with placeholders. Assumed that is the first sep where usePlaceHolder is false
             if (!usePlaceHolder) result = GetAI(data, ref index, true);
 
-            // if no AI found remove potentially leading FNC1
-            if(result is null && data.Contains(BarcodeConstants.FNC1.ToString())) result = GetAI(data, ref index, false, true);
-
-            // try with placeholder and without leading FNC1
-            if (result is null && data.Contains(BarcodeConstants.FNC1.ToString())) result = GetAI(data, ref index, true, true);
-
             return result;
         }
 
@@ -291,7 +235,7 @@ namespace BarcodeReader.Misc
         /// <param name="ai">The current AI</param>
         /// <param name="index">The refrence of the current position</param>
         /// <returns>the data to the current AI</returns>
-        private static string GetCode(string data, AII ai, ref int index)
+        private static string GetCode(string data, ApplicationIdentifier ai, ref int index)
         {
             // get the max lenght to read.
             int lenghtToRead = Math.Min(ai.LengthOfData, data.Length - index);
@@ -301,7 +245,7 @@ namespace BarcodeReader.Misc
             if (ai.FNC1)
             {
                 // try to find the index of the group seperator
-                int indexOfGroupTermination = result.IndexOf(GroutSeperator);
+                int indexOfGroupTermination = result.IndexOf(BarcodeConstants.FNC1);
                 if (indexOfGroupTermination >= 0) lenghtToRead = indexOfGroupTermination + 1;
 
                 // get the data of the current AI till the gorup seperator
@@ -310,7 +254,7 @@ namespace BarcodeReader.Misc
 
             // Shift the index to the next
             index += lenghtToRead;
-            return result;
+            return result.Trim(BarcodeConstants.FNC1);
         }
     }
 }

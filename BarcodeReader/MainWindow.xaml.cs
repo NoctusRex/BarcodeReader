@@ -1,34 +1,36 @@
-﻿using BarcodeReader.Misc;
+﻿using BarcodeReader.BarcodeStuff;
+using BarcodeReader.BarcodeStuff.Engines.Core;
+using BarcodeReader.BarcodeStuff.Models;
+using BarcodeReader.Misc;
 using BarcodeReader.Windows;
 using NoRe.Core;
 using NoRe.Database.Core.Models;
 using NoRe.Database.SqLite;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-using ZXing;
-using ZXing.Rendering;
 using Clipboard = System.Windows.Clipboard;
-using Color = System.Drawing.Color;
 
 namespace BarcodeReader
 {
-    /// <summary>
-    /// Interaktionslogik für MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        #region "Properties"
+
         private GlobalHotkey ScanTextboxHotkey { get; set; }
         private GlobalHotkey ScanScreenshotHotkey { get; set; }
         private BarcodeHistoryUserControl CurrentBarcode { get; set; }
         private SqLiteWrapper Database { get; set; }
         private SettingsWindow Settings { get; set; }
         private NotifyIcon NotifyIcon { get; set; }
+
+        #endregion
+
+        #region "Startup"
 
         public MainWindow()
         {
@@ -57,133 +59,6 @@ namespace BarcodeReader
             }
 
             NotifyIcon.DoubleClick += NotifyIconDoubleClick;
-        }
-
-        private void NotifyIconDoubleClick(object sender, EventArgs e)
-        {
-            NotifyIcon.Visible = false;
-            ShowInTaskbar = true;
-            Show();
-            BringIntoView();
-        }
-
-        private void ScreenshotButton_Click(object sender, RoutedEventArgs e)
-        {
-            HandleScan(ReadBarcodeFromImage(TakeScreenshot()));
-        }
-
-        private void ScanScreenshotHotkeyTriggered(object sender, EventArgs e)
-        {
-            HandleScan(ReadBarcodeFromImage(TakeScreenshot()));
-        }
-
-        private void ScanTextBoxHotkeyTriggered(object sender, EventArgs e)
-        {
-            AddBarcode();
-        }
-
-        private void HandleScan(Result barcode)
-        {
-            if (barcode is null) return;
-            string barcodeText = HandleFnc1(barcode.Text);
-
-            BarcodeHistoryUserControl temp = TryGetHistory(barcode, barcodeText);
-            if (temp is null)
-            {
-                temp = new BarcodeHistoryUserControl(barcode, DateTime.Now, barcodeText);
-                temp.Deleted += OnHistoryDeleted;
-                HistoryStackpanel.Children.Insert(0, temp);
-                Database.ExecuteNonQuery("INSERT INTO history (value, type, date) VALUES (@0, @1, @2)", barcodeText, barcode.BarcodeFormat, DateTime.Now.ToString());
-            }
-
-            ScrollToTarget(temp, barcodeText);
-
-            WriteText(barcodeText);
-        }
-
-        private string HandleFnc1(string barcode)
-        {
-            if (!barcode.StartsWith(BarcodeConstants.FNC1_SymbologyIdentifier)) return barcode;
-
-            string newBarcode = "";
-            foreach (KeyValuePair<Fnc1Parser.AII, string> ai in Fnc1Parser.Parse(barcode, true))
-            {
-                newBarcode += BarcodeConstants.FNC1 + ai.Key.AI + ai.Value;
-            }
-            return newBarcode;
-        }
-
-        private void ScrollToTarget(BarcodeHistoryUserControl target, string textToSet = "")
-        {
-            if (CurrentBarcode != null) CurrentBarcode.MainGrid.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF004799");
-            CurrentBarcode = target;
-            CurrentBarcode.MainGrid.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FFFC8706");
-            HistoryScrollViewer.ScrollToVerticalOffset(target.TranslatePoint(new System.Windows.Point(), HistoryStackpanel).Y);
-
-            if (string.IsNullOrEmpty(textToSet))
-                ScanTextBox.Text = target.Barcode.Text;
-            else
-                ScanTextBox.Text = textToSet;
-
-            BarcodeTypeComboBox.SelectedItem = target.Barcode.BarcodeFormat;
-            ScanTextBox.SelectAll();
-        }
-
-        private BarcodeHistoryUserControl TryGetHistory(Result barcode, string barcodeText)
-        {
-            foreach (BarcodeHistoryUserControl history in HistoryStackpanel.Children)
-            {
-                if (history.Barcode.Text == barcodeText && history.Barcode.BarcodeFormat == barcode.BarcodeFormat) return history;
-            }
-
-            return null;
-        }
-
-        private Bitmap TakeScreenshot()
-        {
-            ScreenShotWindow screenShotWindow = new ScreenShotWindow();
-            bool? result = screenShotWindow.TakeScreenshot();
-            if (result is null || !(bool)result) return null;
-            return screenShotWindow.Screenshot;
-        }
-
-        private Result ReadBarcodeFromImage(Bitmap image)
-        {
-            if (image is null) return null;
-            image = AddWhiteBorder(image, 20);
-            // image.Save("C:\\temp\\" + DateTime.Now.Ticks + ".png", ImageFormat.Png);
-
-            ZXing.BarcodeReader reader = new ZXing.BarcodeReader();
-            reader.Options.AssumeGS1 = true;
-            reader.Options.TryHarder = true;
-            reader.TryInverted = true;
-            reader.AutoRotate = true;
-            return reader.Decode(image);
-        }
-
-        private Bitmap AddWhiteBorder(Bitmap bmp, int borderSize)
-        {
-            int newWidth = bmp.Width + (borderSize * 2);
-            int newHeight = bmp.Height + (borderSize * 2);
-
-            System.Drawing.Image newImage = new Bitmap(newWidth, newHeight);
-            using (Graphics gfx = Graphics.FromImage(newImage))
-            {
-                using (System.Drawing.Brush border = new SolidBrush(Color.White)) gfx.FillRectangle(border, 0, 0, newWidth, newHeight);
-                
-                gfx.DrawImage(bmp, new Rectangle(borderSize, borderSize, bmp.Width, bmp.Height));
-            }
-            return (Bitmap)newImage;
-        }
-
-        private void WriteText(string value)
-        {
-            // use copy and paste, cause its faster and writes FNC1-Char which SendKeys does not
-            Clipboard.SetText(value);
-
-            if (ScanTextBox.IsFocused) ScanButton.Focus();
-
-            SendKeys.SendWait("^{v}");
         }
 
         private void RegisterHotkeys()
@@ -222,17 +97,6 @@ namespace BarcodeReader
             }
         }
 
-        private void OnHistoryDeleted(object sender, EventArgs e)
-        {
-            DeleteHistory((BarcodeHistoryUserControl)sender);
-        }
-
-        private void DeleteHistory(BarcodeHistoryUserControl history)
-        {
-            Database.ExecuteNonQuery("DELETE FROM history WHERE value=@0 AND type=@1", history.Barcode.Text, history.Barcode.BarcodeFormat);
-            HistoryStackpanel.Children.Remove(history);
-        }
-
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             RegisterHotkeys();
@@ -246,6 +110,52 @@ namespace BarcodeReader
 
             InitializeNotifyIcon();
         }
+
+        #endregion
+
+        #region "Click Events"
+
+        private void NotifyIconDoubleClick(object sender, EventArgs e)
+        {
+            NotifyIcon.Visible = false;
+            ShowInTaskbar = true;
+            Show();
+            BringIntoView();
+        }
+
+        private void ScreenshotButton_Click(object sender, RoutedEventArgs e)
+        {
+            HandleScan(ReadBarcodeFromImage(TakeScreenshot()));
+        }
+
+        private void ScanButton_Click(object sender, RoutedEventArgs e)
+        {
+            AddBarcode();
+        }
+
+        private void ConfigButton_Click(object sender, RoutedEventArgs e)
+        {
+            Settings.ShowDialog();
+        }
+
+        private void Fnc1Button_Click(object sender, RoutedEventArgs e)
+        {
+            ScanTextBox.Text = ScanTextBox.Text.Insert(ScanTextBox.SelectionStart, BarcodeConstants.FNC1_DisplayPlaceholder);
+        }
+
+        private void ScanScreenshotHotkeyTriggered(object sender, EventArgs e)
+        {
+            HandleScan(ReadBarcodeFromImage(TakeScreenshot()));
+        }
+
+        private void ScanTextBoxHotkeyTriggered(object sender, EventArgs e)
+        {
+            AddBarcode();
+        }
+
+        #endregion
+
+        #region "Misc Events"
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -269,40 +179,9 @@ namespace BarcodeReader
 
         }
 
-        private void ScanButton_Click(object sender, RoutedEventArgs e)
+        private void OnHistoryDeleted(object sender, EventArgs e)
         {
-            AddBarcode();
-        }
-
-        private void AddBarcode()
-        {
-            if (string.IsNullOrEmpty(ScanTextBox.Text)) return;
-
-            HandleScan(CreateAndScanBarcode(ReplaceFnc1Placeholder(ScanTextBox.Text), (BarcodeFormat)BarcodeTypeComboBox.SelectedItem));
-        }
-
-        private string ReplaceFnc1Placeholder(string barcode)
-        {
-            return barcode.Replace(BarcodeConstants.FNC1_DisplayPlaceholder, BarcodeConstants.FNC1.ToString());
-        }
-
-        private Result CreateAndScanBarcode(string text, BarcodeFormat format)
-        {
-            BarcodeWriter bcWriter = new BarcodeWriter
-            {
-                Format = format,
-                Renderer = new BitmapRenderer()
-                {
-                    Background = Color.White,
-                    Foreground = Color.Black,
-                    DpiX = 1000,
-                    DpiY = 1000
-                }
-            };
-
-            bcWriter.Options.PureBarcode = true;
-
-            return ReadBarcodeFromImage(bcWriter.Write(text));
+            DeleteHistory((BarcodeHistoryUserControl)sender);
         }
 
         private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -353,15 +232,113 @@ namespace BarcodeReader
             }
         }
 
-        private void ConfigButton_Click(object sender, RoutedEventArgs e)
-        {
-            Settings.ShowDialog();
-        }
-
         private void Window_StateChanged(object sender, EventArgs e)
         {
             if (WindowState == WindowState.Minimized) MinimizeToIcon();
         }
+
+        #endregion
+
+        #region "Barcode/Scan handling"
+
+        private void AddBarcode()
+        {
+            if (string.IsNullOrEmpty(ScanTextBox.Text)) return;
+
+            HandleScan(CreateAndScanBarcode(ReplaceFnc1Placeholder(ScanTextBox.Text), (BarcodeFormat)BarcodeTypeComboBox.SelectedItem));
+        }
+
+        private Bitmap TakeScreenshot()
+        {
+            ScreenShotWindow screenShotWindow = new ScreenShotWindow();
+            bool? result = screenShotWindow.TakeScreenshot();
+            if (result is null || !(bool)result) return null;
+            return screenShotWindow.Screenshot;
+        }
+
+        private Barcode ReadBarcodeFromImage(Bitmap image)
+        {
+            return BarcodeEngineLoader.BarcodeEngine.Read(image);
+        }
+
+        private string ReplaceFnc1Placeholder(string barcode)
+        {
+            return barcode.Replace(BarcodeConstants.FNC1_DisplayPlaceholder, BarcodeConstants.FNC1.ToString());
+        }
+
+        private void HandleScan(Barcode barcode)
+        {
+            if (barcode is null) return;
+            string barcodeText = barcode.Text;
+
+            BarcodeHistoryUserControl temp = TryGetHistory(barcode, barcodeText);
+            if (temp is null)
+            {
+                temp = new BarcodeHistoryUserControl(barcode, DateTime.Now, barcodeText);
+                temp.Deleted += OnHistoryDeleted;
+                HistoryStackpanel.Children.Insert(0, temp);
+                Database.ExecuteNonQuery("INSERT INTO history (value, type, date) VALUES (@0, @1, @2)", barcodeText, barcode.Format, DateTime.Now.ToString());
+            }
+
+            ScrollToTarget(temp, barcodeText);
+
+            WriteText(barcodeText);
+        }
+
+        private void WriteText(string value)
+        {
+            // use copy and paste, cause its faster and writes FNC1-Char which SendKeys does not
+            Clipboard.SetText(value);
+
+            if (ScanTextBox.IsFocused) ScanButton.Focus();
+
+            SendKeys.SendWait("^{v}");
+        }
+
+        private Barcode CreateAndScanBarcode(string text, BarcodeFormat format)
+        {
+            return ReadBarcodeFromImage(BarcodeEngineLoader.BarcodeEngine.Write(text, format));
+        }
+
+        #endregion
+
+        #region "History handling"
+
+        private BarcodeHistoryUserControl TryGetHistory(Barcode barcode, string barcodeText)
+        {
+            foreach (BarcodeHistoryUserControl history in HistoryStackpanel.Children)
+            {
+                if (history.Barcode.Text == barcodeText && history.Barcode.Format == barcode.Format) return history;
+            }
+
+            return null;
+        }
+
+        private void ScrollToTarget(BarcodeHistoryUserControl target, string textToSet = "")
+        {
+            if (CurrentBarcode != null) CurrentBarcode.MainGrid.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF004799");
+            CurrentBarcode = target;
+            CurrentBarcode.MainGrid.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FFFC8706");
+            HistoryScrollViewer.ScrollToVerticalOffset(target.TranslatePoint(new System.Windows.Point(), HistoryStackpanel).Y);
+
+            if (string.IsNullOrEmpty(textToSet))
+                ScanTextBox.Text = target.Barcode.Text;
+            else
+                ScanTextBox.Text = textToSet;
+
+            BarcodeTypeComboBox.SelectedItem = target.Barcode.Format;
+            ScanTextBox.SelectAll();
+        }
+
+        private void DeleteHistory(BarcodeHistoryUserControl history)
+        {
+            Database.ExecuteNonQuery("DELETE FROM history WHERE value=@0 AND type=@1", history.Barcode.Text, history.Barcode.Format);
+            HistoryStackpanel.Children.Remove(history);
+        }
+
+        #endregion
+
+        #region "Misc"
 
         private void MinimizeToIcon()
         {
@@ -370,9 +347,6 @@ namespace BarcodeReader
             Hide();
         }
 
-        private void Fnc1Button_Click(object sender, RoutedEventArgs e)
-        {
-            ScanTextBox.Text = ScanTextBox.Text.Insert(ScanTextBox.SelectionStart, BarcodeConstants.FNC1_DisplayPlaceholder);
-        }
+        #endregion
     }
 }

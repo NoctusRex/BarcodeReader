@@ -5,12 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BarcodeReader.Windows"
         mc:Ignorable="d"
-        Title="BarcodeWindow" Height="596" Width="1044">
+        Title="BarcodeWindow" Height="596" Width="1044" UseLayoutRounding="True">
     <Grid>
-        <Image x:Name="BarcodeImage" Margin="10,10,10,0" VerticalAlignment="Top" Height="205"/>
-        <Rectangle Fill="#FFF4F4F5" Height="2" Margin="5,220,5,0" Stroke="Black" VerticalAlignment="Top"/>
+        <Image x:Name="BarcodeImage" Margin="15,10,5,350" UseLayoutRounding="True" VerticalAlignment="Top" MaxHeight="200" Stretch="None"/>
 
-        <GroupBox Margin="10,229,0,10" HorizontalAlignment="Left" Width="381" FontFamily="Tahoma" FontSize="14">
+        <GroupBox Margin="10,229,0,10" HorizontalAlignment="Left" Width="381" FontFamily="Tahoma" FontSize="14" BorderBrush="#FF004799">
             <GroupBox.Header>
                 <Label FontWeight="Bold" FontSize="16">General Information</Label>
             </GroupBox.Header>
@@ -24,7 +23,7 @@
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Margin="396,229,10,10" FontFamily="Tahoma">
+        <GroupBox Margin="396,229,10,10" FontFamily="Tahoma" BorderBrush="#FF004799">
             <GroupBox.Header>
                 <Label FontWeight="Bold" FontSize="16">Application Identifier</Label>
             </GroupBox.Header>
