@@ -40,6 +40,8 @@ namespace BarcodeReader
             DatabaseStatements = new DatabaseStatements();
 
             DatabaseStatements.CreateTable();
+
+            BarcodeEngineManager.SetBarcodeEngine(Settings.Settings.BarcodeEngine);
         }
 
         private void InitializeNotifyIcon()
@@ -86,12 +88,13 @@ namespace BarcodeReader
             foreach (Row r in DatabaseStatements.GetHistory())
             {
                 BarcodeHistoryUserControl temp = new BarcodeHistoryUserControl(
-                    CreateAndScanBarcode(
-                        r.GetValue<string>("value"),
-                        (BarcodeFormat)Enum.Parse(typeof(BarcodeFormat), r.GetValue<string>("type"))),
-                        DateTime.Parse(r.GetValue<string>("date")));
+                  new Barcode(
+                      r.GetValue<string>("value"),
+                      (BarcodeFormat)Enum.Parse(typeof(BarcodeFormat), r.GetValue<string>("type"))),
+                      DateTime.Parse(r.GetValue<string>("date")));
 
                 temp.Deleted += OnHistoryDeleted;
+                temp.Clicked += OnHistoryClicked;
 
                 HistoryStackpanel.Children.Add(temp);
             }
@@ -162,8 +165,6 @@ namespace BarcodeReader
 
         }
 
-        private void OnHistoryDeleted(object sender, EventArgs e) => DeleteHistory((BarcodeHistoryUserControl)sender);
-
         private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             // Ignore all of this please
@@ -225,7 +226,7 @@ namespace BarcodeReader
         {
             if (string.IsNullOrEmpty(ScanTextBox.Text)) return;
 
-            HandleScan(CreateAndScanBarcode(ReplaceFnc1Placeholder(ScanTextBox.Text), (BarcodeFormat)BarcodeTypeComboBox.SelectedItem));
+            HandleScan(new Barcode(ScanTextBox.Text.Replace(BarcodeConstants.FNC1_DisplayPlaceholder, BarcodeConstants.FNC1.ToString()), (BarcodeFormat)BarcodeTypeComboBox.SelectedItem));
         }
 
         private Bitmap TakeScreenshot()
@@ -237,9 +238,7 @@ namespace BarcodeReader
             return screenShotWindow.Screenshot;
         }
 
-        private Barcode ReadBarcodeFromImage(Bitmap image) => BarcodeEngineLoader.BarcodeEngine.Read(image);
-
-        private string ReplaceFnc1Placeholder(string barcode) => barcode.Replace(BarcodeConstants.FNC1_DisplayPlaceholder, BarcodeConstants.FNC1.ToString());
+        private Barcode ReadBarcodeFromImage(Bitmap image) => BarcodeEngineManager.CurrentBarcodeEngine.Read(image);
 
         private void HandleScan(Barcode barcode)
         {
@@ -250,6 +249,7 @@ namespace BarcodeReader
             {
                 temp = new BarcodeHistoryUserControl(barcode, DateTime.Now, barcode.Text);
                 temp.Deleted += OnHistoryDeleted;
+                temp.Clicked += OnHistoryClicked;
                 HistoryStackpanel.Children.Insert(0, temp);
                 DatabaseStatements.InsertBarcode(barcode.Text, barcode.Format);
             }
@@ -269,11 +269,19 @@ namespace BarcodeReader
             SendKeys.SendWait("^{v}");
         }
 
-        private Barcode CreateAndScanBarcode(string text, BarcodeFormat format) => ReadBarcodeFromImage(BarcodeEngineLoader.BarcodeEngine.Write(text, format));
-
         #endregion
 
         #region "History handling"
+
+        private void OnHistoryDeleted(object sender, EventArgs e) => DeleteHistory((BarcodeHistoryUserControl)sender);
+
+        private void OnHistoryClicked(object sender, EventArgs e)
+        {
+            BarcodeHistoryUserControl target = sender as BarcodeHistoryUserControl;
+            if (CurrentBarcode != null && target == CurrentBarcode) return;
+            
+            ScrollToTarget(target);
+        }
 
         private BarcodeHistoryUserControl TryGetHistory(Barcode barcode, string barcodeText) =>
              HistoryStackpanel.Children.OfType<BarcodeHistoryUserControl>().
@@ -281,15 +289,15 @@ namespace BarcodeReader
 
         private void ScrollToTarget(BarcodeHistoryUserControl target, string textToSet = "")
         {
-            if (CurrentBarcode != null) CurrentBarcode.MainGrid.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF004799");
+            if (CurrentBarcode != null) CurrentBarcode.MainGrid.Background = (SolidColorBrush)new BrushConverter().ConvertFrom(ColorConstants.Blue);
             CurrentBarcode = target;
-            CurrentBarcode.MainGrid.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FFFC8706");
+            CurrentBarcode.MainGrid.Background = (SolidColorBrush)new BrushConverter().ConvertFrom(ColorConstants.Orange);
             HistoryScrollViewer.ScrollToVerticalOffset(target.TranslatePoint(new System.Windows.Point(), HistoryStackpanel).Y);
 
             if (string.IsNullOrEmpty(textToSet))
-                ScanTextBox.Text = target.Barcode.Text;
+                ScanTextBox.Text = target.Barcode.Text.Replace(BarcodeConstants.FNC1.ToString(), BarcodeConstants.FNC1_DisplayPlaceholder);
             else
-                ScanTextBox.Text = textToSet;
+                ScanTextBox.Text = textToSet.Replace(BarcodeConstants.FNC1.ToString(), BarcodeConstants.FNC1_DisplayPlaceholder);
 
             BarcodeTypeComboBox.SelectedItem = target.Barcode.Format;
             ScanTextBox.SelectAll();

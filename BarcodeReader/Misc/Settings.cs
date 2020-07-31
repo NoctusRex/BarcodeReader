@@ -10,6 +10,7 @@ namespace BarcodeReader.Misc
         public bool StartAsNotifyIcon { get; set; }
         public Keys ScanHotkey { get; set; }
         public Keys RescanHotkey { get; set; }
+        public string BarcodeEngine { get; set; }
 
         public override void Read()
         {
@@ -18,6 +19,7 @@ namespace BarcodeReader.Misc
             StartAtStartup = temp.StartAtStartup;
             ScanHotkey = temp.ScanHotkey;
             RescanHotkey = temp.RescanHotkey;
+            BarcodeEngine = temp.BarcodeEngine;
         }
 
     }

@@ -21,7 +21,7 @@ namespace BarcodeReader.Windows
         {
             InitializeComponent();
 
-            BarcodeImage.Source = ConvertBitmapToImageSource(BarcodeEngineLoader.BarcodeEngine.Write(barcode.Text, barcode.Format));
+            BarcodeImage.Source = ConvertBitmapToImageSource(BarcodeEngineManager.CurrentBarcodeEngine.Write(barcode.Text, barcode.Format));
 
             FormatLabel.Content = barcode.Format.ToString();
             GS1Label.Content = barcode.IsGS1.ToString();

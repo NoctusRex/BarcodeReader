@@ -1,8 +1,10 @@
 ﻿using BarcodeReader.BarcodeStuff;
 using BarcodeReader.BarcodeStuff.Models;
+using BarcodeReader.Misc;
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace BarcodeReader
 {
@@ -13,6 +15,9 @@ namespace BarcodeReader
     {
         public Barcode Barcode { get; set; }
         public event EventHandler Deleted;
+        public event EventHandler Clicked;
+
+        private Brush LastColor { get; set; }
 
         public BarcodeHistoryUserControl()
         {
@@ -41,6 +46,23 @@ namespace BarcodeReader
         private void ShowButton_Click(object sender, RoutedEventArgs e)
         {
             new Windows.BarcodeWindow(Barcode).Show();
+        }
+
+        private void UserControl_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Clicked(this, e);
+            LastColor = (SolidColorBrush)new BrushConverter().ConvertFrom(ColorConstants.Orange);
+        }
+
+        private void UserControl_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            LastColor = MainGrid.Background;
+            MainGrid.Background = (SolidColorBrush)new BrushConverter().ConvertFrom(ColorConstants.DarkOrange);
+        }
+
+        private void UserControl_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            MainGrid.Background = LastColor;
         }
     }
 }

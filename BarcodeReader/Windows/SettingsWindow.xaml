@@ -11,9 +11,11 @@
         <CheckBox x:Name="StartAfterBootRadioButton" Content="Start after Windows boot" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top" FontFamily="Tahoma" BorderBrush="#FF004799"/>
         <CheckBox x:Name="StartAsNotifyIconRadioButton" Content="Start as notify icon" HorizontalAlignment="Left" Margin="10,64,0,0" VerticalAlignment="Top" FontFamily="Tahoma" BorderBrush="#FF004799"/>
         <ComboBox x:Name ="ScanHotkeyComboBox" Margin="10,107,0,0" VerticalAlignment="Top" Height="18" HorizontalAlignment="Left" Width="153" FontFamily="Tahoma" FontSize="12"/>
-        <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="10,188,0,0" VerticalAlignment="Top" Width="152" Click="SaveButton_Click" FontFamily="Tahoma"/>
+        <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="10,247,0,0" VerticalAlignment="Top" Width="152" Click="SaveButton_Click" FontFamily="Tahoma"/>
         <Label Content="Scan-Hotkey" HorizontalAlignment="Left" Margin="6,83,0,0" VerticalAlignment="Top" FontFamily="Tahoma"/>
         <ComboBox x:Name ="RescanHotkeyComboBox" Margin="10,153,0,0" VerticalAlignment="Top" Height="18" HorizontalAlignment="Left" Width="153" FontFamily="Tahoma" FontSize="12"/>
         <Label Content="Rescan-Hotkey" HorizontalAlignment="Left" Margin="6,129,0,0" VerticalAlignment="Top" FontFamily="Tahoma"/>
+        <ComboBox x:Name ="BarcodeEngineComboBox" Margin="10,200,0,0" VerticalAlignment="Top" Height="18" HorizontalAlignment="Left" Width="153" FontFamily="Tahoma" FontSize="12"/>
+        <Label Content="Barcode Engine" HorizontalAlignment="Left" Margin="6,176,0,0" VerticalAlignment="Top" FontFamily="Tahoma"/>
     </Grid>
 </Window>

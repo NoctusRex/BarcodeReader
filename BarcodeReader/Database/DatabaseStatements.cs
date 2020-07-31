@@ -1,5 +1,5 @@
 ﻿using BarcodeReader.BarcodeStuff.Engines.Core;
-using NoRe.Core;
+using BarcodeReader.Misc;
 using NoRe.Database.Core.Models;
 using NoRe.Database.SqLite;
 using System;
@@ -11,7 +11,7 @@ namespace BarcodeReader.Database
     {
         private SqLiteWrapper Database { get; set; }
 
-        public DatabaseStatements() => Database = new SqLiteWrapper(System.IO.Path.Combine(Pathmanager.StartupDirectory, "History.db"), "3");
+        public DatabaseStatements() => Database = new SqLiteWrapper(PathManager.DatabasePath, "3");
 
         public void CreateTable() => Database.ExecuteNonQuery("CREATE TABLE IF NOT EXISTS history (id INTEGER PRIMARY KEY AUTOINCREMENT, value TEXT, type TEXT, date TEXT)");
 

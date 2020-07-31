@@ -3,8 +3,9 @@ using System.Drawing;
 
 namespace BarcodeReader.BarcodeStuff.Engines.Core
 {
-    interface IBarcodeEngine
+    public interface IBarcodeEngine
     {
+        string Identifier { get; }
         Barcode Read(Bitmap barcodeImage);
         Bitmap Write(string text, BarcodeFormat format);
     }

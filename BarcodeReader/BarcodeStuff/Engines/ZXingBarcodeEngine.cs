@@ -1,9 +1,6 @@
 ﻿using BarcodeReader.BarcodeStuff.Engines.Core;
 using BarcodeReader.BarcodeStuff.Models;
-using System;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Windows.Forms;
 using ZXing.Rendering;
 
 namespace BarcodeReader.BarcodeStuff.Engines
@@ -12,9 +9,11 @@ namespace BarcodeReader.BarcodeStuff.Engines
     {
         private FormatMap<ZXing.BarcodeFormat> FormatMap { get; set; }
 
+        public string Identifier => "ZXing";
+
         public ZXingBarcodeEngine()
         {
-            FormatMap = new FormatMap<ZXing.BarcodeFormat>();
+            FormatMap = new FormatMap<ZXing.BarcodeFormat>(ZXing.BarcodeFormat.DATA_MATRIX);
 
             FormatMap.Map(BarcodeFormat.All_1D, ZXing.BarcodeFormat.All_1D);
             FormatMap.Map(BarcodeFormat.AZTEC, ZXing.BarcodeFormat.AZTEC);
@@ -44,7 +43,7 @@ namespace BarcodeReader.BarcodeStuff.Engines
         {
             if (barcodeImage is null) return null;
             barcodeImage = AddWhiteBorder(barcodeImage);
-          
+
             ZXing.BarcodeReader reader = new ZXing.BarcodeReader();
             reader.Options.AssumeGS1 = true;
             reader.Options.TryHarder = true;
@@ -55,22 +54,6 @@ namespace BarcodeReader.BarcodeStuff.Engines
             if (result is null) return null;
 
             return new Barcode(result.Text, FormatMap.Resolve(result.BarcodeFormat));
-        }
-
-        private Bitmap AddWhiteBorder(Bitmap bmp)
-        {
-            int borderSize = 20;
-            int newWidth = bmp.Width + (borderSize * 2);
-            int newHeight = bmp.Height + (borderSize * 2);
-
-            Image newImage = new Bitmap(newWidth, newHeight);
-            using (Graphics gfx = Graphics.FromImage(newImage))
-            {
-                using (Brush border = new SolidBrush(Color.White)) gfx.FillRectangle(border, 0, 0, newWidth, newHeight);
-
-                gfx.DrawImage(bmp, new Rectangle(borderSize, borderSize, bmp.Width, bmp.Height));
-            }
-            return (Bitmap)newImage;
         }
 
         public Bitmap Write(string text, BarcodeFormat format)
@@ -91,6 +74,21 @@ namespace BarcodeReader.BarcodeStuff.Engines
             return AddWhiteBorder(bcWriter.Write(text));
         }
 
+        private Bitmap AddWhiteBorder(Bitmap bmp)
+        {
+            int borderSize = 20;
+            int newWidth = bmp.Width + (borderSize * 2);
+            int newHeight = bmp.Height + (borderSize * 2);
+
+            Image newImage = new Bitmap(newWidth, newHeight);
+            using (Graphics gfx = Graphics.FromImage(newImage))
+            {
+                using (Brush border = new SolidBrush(Color.White)) gfx.FillRectangle(border, 0, 0, newWidth, newHeight);
+
+                gfx.DrawImage(bmp, new Rectangle(borderSize, borderSize, bmp.Width, bmp.Height));
+            }
+            return (Bitmap)newImage;
+        }
     }
 
 }

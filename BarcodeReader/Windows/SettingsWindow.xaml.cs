@@ -1,6 +1,8 @@
-﻿using BarcodeReader.Misc;
-using NoRe.Core;
+﻿using BarcodeReader.BarcodeStuff.Engines.Core;
+using BarcodeReader.Misc;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
 using MessageBox = System.Windows.MessageBox;
@@ -22,16 +24,26 @@ namespace BarcodeReader.Windows
             InitializeComponent();
             Settings = new Settings
             {
-                Path = System.IO.Path.Combine(Pathmanager.StartupDirectory, "Settings.json")
+                Path = PathManager.SettingsPath
             };
 
             if (!System.IO.File.Exists(Settings.Path)) Settings.Write();
 
             Settings.Read();
 
+            LoadCheckboxes();
+            LoadHotKeyComboboxes();
+            LoadBarcodeEngineCombobox();
+        }
+
+        private void LoadCheckboxes()
+        {
             StartAfterBootRadioButton.IsChecked = Settings.StartAtStartup;
             StartAsNotifyIconRadioButton.IsChecked = Settings.StartAsNotifyIcon;
+        }
 
+        private void LoadHotKeyComboboxes()
+        {
             ScanHotkeyComboBox.ItemsSource = Enum.GetValues(typeof(Keys));
             ScanHotkeyComboBox.SelectedItem = Settings.ScanHotkey;
 
@@ -39,17 +51,33 @@ namespace BarcodeReader.Windows
             RescanHotkeyComboBox.SelectedItem = Settings.RescanHotkey;
         }
 
+        private void LoadBarcodeEngineCombobox()
+        {
+            // set current engine from settings file or set the first engine found if no engine is configured
+            IEnumerable<string> engines = BarcodeEngineManager.GetAllBarcodeEngines().Select(x => x.Identifier);
+            string currentEngine = engines.SingleOrDefault(x => x == Settings.BarcodeEngine);
+            BarcodeEngineComboBox.ItemsSource = engines;
+            if (string.IsNullOrEmpty(currentEngine))
+            {
+                BarcodeEngineComboBox.SelectedItem = engines.First();
+                Settings.BarcodeEngine = engines.First();
+                SaveButton_Click(this, new RoutedEventArgs());
+            }
+            else
+            {
+                BarcodeEngineComboBox.SelectedItem = currentEngine;
+            }
+        }
+
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            Settings.StartAsNotifyIcon = (bool)StartAsNotifyIconRadioButton.IsChecked;
-            Settings.StartAtStartup = (bool)StartAfterBootRadioButton.IsChecked;
+            SaveCheckboxes();
 
-            if (Settings.ScanHotkey != (Keys)ScanHotkeyComboBox.SelectedItem ||
-               Settings.RescanHotkey != (Keys)RescanHotkeyComboBox.SelectedItem)
-                MessageBox.Show("Some changes will only take effect after restarting the application", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            ShowRestartHint();
 
-            Settings.ScanHotkey = (Keys)ScanHotkeyComboBox.SelectedItem;
-            Settings.RescanHotkey = (Keys)RescanHotkeyComboBox.SelectedItem;
+            SaveHotkeys();
+
+            SaveBarcodeEngine();
 
             Settings.Write();
 
@@ -58,6 +86,28 @@ namespace BarcodeReader.Windows
 
             Hide();
         }
+
+        private void SaveCheckboxes()
+        {
+            Settings.StartAsNotifyIcon = (bool)StartAsNotifyIconRadioButton.IsChecked;
+            Settings.StartAtStartup = (bool)StartAfterBootRadioButton.IsChecked;
+        }
+
+        private void ShowRestartHint()
+        {
+            if (Settings.ScanHotkey != (Keys)ScanHotkeyComboBox.SelectedItem ||
+                Settings.RescanHotkey != (Keys)RescanHotkeyComboBox.SelectedItem ||
+                Settings.BarcodeEngine != (string)BarcodeEngineComboBox.SelectedItem)
+                MessageBox.Show("Some changes will only take effect after restarting the application", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void SaveHotkeys()
+        {
+            Settings.ScanHotkey = (Keys)ScanHotkeyComboBox.SelectedItem;
+            Settings.RescanHotkey = (Keys)RescanHotkeyComboBox.SelectedItem;
+        }
+
+        private void SaveBarcodeEngine() => Settings.BarcodeEngine = BarcodeEngineComboBox.SelectedItem.ToString();
 
         private void CreateStartupShortcut()
         {
