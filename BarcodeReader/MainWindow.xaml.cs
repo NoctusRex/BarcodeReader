@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
+using WindowsInput;
 using Clipboard = System.Windows.Clipboard;
 
 namespace BarcodeReader
@@ -261,12 +262,23 @@ namespace BarcodeReader
 
         private void WriteText(string value)
         {
-            // use copy and paste, cause its faster and writes FNC1-Char which SendKeys does not
-            Clipboard.SetText(value);
-
             if (ScanTextBox.IsFocused) ScanButton.Focus();
 
-            SendKeys.SendWait("^{v}");
+            if(Settings.Settings.SimulateKeyPress)
+            {
+                // use simulator for actual keypress events
+                InputSimulator simulator = new InputSimulator();
+                foreach (char c in value.ToCharArray())
+                    simulator.Keyboard.TextEntry(c);
+            }
+
+            if(Settings.Settings.UseCopyPaste)
+            {
+                // use copy and paste, cause its faster and writes FNC1-Char which SendKeys does not
+                Clipboard.SetText(value);
+                SendKeys.SendWait("^{v}");
+            }
+      
         }
 
         #endregion
@@ -279,7 +291,7 @@ namespace BarcodeReader
         {
             BarcodeHistoryUserControl target = sender as BarcodeHistoryUserControl;
             if (CurrentBarcode != null && target == CurrentBarcode) return;
-            
+
             ScrollToTarget(target);
         }
 

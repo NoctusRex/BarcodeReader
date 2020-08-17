@@ -40,6 +40,23 @@ namespace BarcodeReader.Windows
         {
             StartAfterBootRadioButton.IsChecked = Settings.StartAtStartup;
             StartAsNotifyIconRadioButton.IsChecked = Settings.StartAsNotifyIcon;
+            UseCopyPasteRadioButton.IsChecked = Settings.UseCopyPaste;
+            UseSimulationRadioButton.IsChecked = Settings.SimulateKeyPress;
+
+            if (!(bool)UseCopyPasteRadioButton.IsChecked && !(bool)UseSimulationRadioButton.IsChecked)
+            {
+                UseCopyPasteRadioButton.IsChecked = true;
+                Settings.UseCopyPaste = true;
+                Settings.Write();
+            }
+
+            if ((bool)UseCopyPasteRadioButton.IsChecked && (bool)UseSimulationRadioButton.IsChecked)
+            {
+                UseCopyPasteRadioButton.IsChecked = false;
+                Settings.UseCopyPaste = false;
+                Settings.Write();
+            }
+
         }
 
         private void LoadHotKeyComboboxes()
@@ -91,6 +108,8 @@ namespace BarcodeReader.Windows
         {
             Settings.StartAsNotifyIcon = (bool)StartAsNotifyIconRadioButton.IsChecked;
             Settings.StartAtStartup = (bool)StartAfterBootRadioButton.IsChecked;
+            Settings.UseCopyPaste = (bool)UseCopyPasteRadioButton.IsChecked;
+            Settings.SimulateKeyPress = (bool)UseSimulationRadioButton.IsChecked;
         }
 
         private void ShowRestartHint()
@@ -137,6 +156,26 @@ namespace BarcodeReader.Windows
                 e.Cancel = true;
                 Hide();
             }
+        }
+
+        private void UseCopyPasteRadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if ((bool)UseSimulationRadioButton.IsChecked) UseSimulationRadioButton.IsChecked = false;
+        }
+
+        private void UseCopyPasteRadioButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (!(bool)UseSimulationRadioButton.IsChecked) UseSimulationRadioButton.IsChecked = true;
+        }
+
+        private void UseSimulationRadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if ((bool)UseCopyPasteRadioButton.IsChecked) UseCopyPasteRadioButton.IsChecked = false;
+        }
+
+        private void UseSimulationRadioButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (!(bool)UseCopyPasteRadioButton.IsChecked) UseCopyPasteRadioButton.IsChecked = true;
         }
     }
 }

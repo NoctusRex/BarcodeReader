@@ -11,6 +11,8 @@ namespace BarcodeReader.Misc
         public Keys ScanHotkey { get; set; }
         public Keys RescanHotkey { get; set; }
         public string BarcodeEngine { get; set; }
+        public bool UseCopyPaste { get; set; }
+        public bool SimulateKeyPress { get; set; }
 
         public override void Read()
         {
@@ -20,6 +22,8 @@ namespace BarcodeReader.Misc
             ScanHotkey = temp.ScanHotkey;
             RescanHotkey = temp.RescanHotkey;
             BarcodeEngine = temp.BarcodeEngine;
+            UseCopyPaste = temp.UseCopyPaste;
+            SimulateKeyPress = temp.SimulateKeyPress;
         }
 
     }
