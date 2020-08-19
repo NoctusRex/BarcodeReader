@@ -1,14 +1,11 @@
 ﻿using BarcodeReader.BarcodeStuff;
 using BarcodeReader.BarcodeStuff.Engines.Core;
 using BarcodeReader.BarcodeStuff.Models;
-using BarcodeReader.Misc;
 using BarcodeReader.UserControls;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using ZXing;
 
 namespace BarcodeReader.Windows
 {
@@ -25,9 +22,11 @@ namespace BarcodeReader.Windows
 
             FormatLabel.Content = barcode.Format.ToString();
             GS1Label.Content = barcode.IsGS1.ToString();
-            ContentLabel.Content = barcode.Text.Replace(BarcodeConstants.FNC1.ToString(), BarcodeConstants.FNC1_DisplayPlaceholder);
+            ContentLabel.Text = barcode.Text.Replace(BarcodeConstants.FNC1.ToString(), BarcodeConstants.FNC1_DisplayPlaceholder);
 
             if (barcode.IsGS1) SetGs1Controls(barcode);
+
+            Title = ContentLabel.Text.ToString();
         }
 
         private BitmapImage ConvertBitmapToImageSource(Bitmap bitmap)

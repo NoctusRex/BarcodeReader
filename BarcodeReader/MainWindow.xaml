@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BarcodeReader"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" Closing="Window_Closing" Icon="Resources/barcode.ico" StateChanged="Window_StateChanged" UseLayoutRounding="False">
+        Title="Barcode Reader" Height="450" Width="800" Loaded="Window_Loaded" Closing="Window_Closing" Icon="Resources/barcode.ico" StateChanged="Window_StateChanged" UseLayoutRounding="False">
     <Grid>
 
         <Button ToolTip="Take a screenshot of a barcode" x:Name="ScreenshotButton" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="50" Height="50" Click="ScreenshotButton_Click" BorderBrush="{x:Null}" Background="{x:Null}">
